@@ -3,6 +3,7 @@ import Hero from "@/components/shared/Hero";
 import ResumeSteps from "@/components/shared/ResumeSteps";
 import Services from "@/components/shared/Services";
 import Snapchat from "@/components/shared/Snapchat";
+import WhyChooseUs from "@/components/shared/WhyChooseUs";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <Snapchat />
       <Services />
       <About />
+      <WhyChooseUs />
     </>
   );
 }
