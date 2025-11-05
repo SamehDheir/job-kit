@@ -1,3 +1,4 @@
+import About from "@/components/shared/About";
 import Hero from "@/components/shared/Hero";
 import ResumeSteps from "@/components/shared/ResumeSteps";
 import Services from "@/components/shared/Services";
@@ -10,6 +11,7 @@ export default function Home() {
       <ResumeSteps />
       <Snapchat />
       <Services />
+      <About />
     </>
   );
 }
