@@ -3,7 +3,7 @@ import React from "react";
 
 const Snapchat = () => {
   return (
-    <section className="flex flex-col md:flex-row items-center justify-between gap-10 px-6 md:px-16 py-12">
+    <section className="flex flex-col md:flex-row items-center justify-between gap-10  py-12">
       {/* Left Side */}
       <div className="w-full md:w-1/2 text-center md:text-left">
         <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary">

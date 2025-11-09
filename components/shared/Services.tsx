@@ -3,7 +3,7 @@ import React from "react";
 
 const Services = () => {
   return (
-    <section className="flex flex-col-reverse md:flex-row items-center justify-between gap-10 px-4 md:px-20 py-16">
+    <section className="flex flex-col-reverse md:flex-row items-center justify-between gap-10  py-16">
       {/* Left Section - Text */}
       <div className="w-full md:w-1/2 text-center md:text-left space-y-6">
         <h3 className="text-primary text-lg font-semibold uppercase tracking-wide">

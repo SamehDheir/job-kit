@@ -23,7 +23,7 @@ const steps = [
 ];
 const ResumeSteps = () => {
   return (
-    <div className="py-16 px-4 md:px-20 relative overflow-hidden">
+    <div className="py-16  relative overflow-hidden">
       <h2 className="text-center text-3xl sm:text-4xl md:text-5xl font-bold mb-12 leading-tight relative z-10">
         Build your <span className="text-primary">resume</span> in 3 steps
       </h2>

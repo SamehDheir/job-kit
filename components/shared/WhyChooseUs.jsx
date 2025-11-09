@@ -47,43 +47,41 @@ const whyChooseUsList = [
 
 const WhyChooseUs = () => {
   return (
-   <div className="py-12 px-4 sm:px-8 md:px-16 lg:px-24">
-  {/* Section Header */}
-  <div className="text-center mb-12">
-    <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3">
-      Benefits Of Using Our Product
-    </h2>
-    <h3 className="text-lg sm:text-xl md:text-2xl text-primary">
-      Why Choose Us?
-    </h3>
-  </div>
-
-  {/* Benefits List */}
-  <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-6 sm:gap-8">
-    {whyChooseUsList.map((item, index) => (
-      <div
-        key={index}
-        className="w-full sm:w-[80%] md:w-[45%] lg:w-[30%] bg-white shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl p-5 sm:p-6 flex items-start gap-4"
-      >
-        <Image
-          src={item.image}
-          alt={item.title}
-          width={64}
-          height={64}
-          className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
-        />
-        <div>
-          <h2 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">
-            {item.title}
-          </h2>
-          <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-            {item.description}
-          </p>
-        </div>
+    <div className="py-12  lg:px-24">
+      <div className="text-center mb-12">
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3">
+          Benefits Of Using Our Product
+        </h2>
+        <h3 className="text-lg sm:text-xl md:text-2xl text-primary">
+          Why Choose Us?
+        </h3>
       </div>
-    ))}
-  </div>
-</div>
+
+      <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-6 sm:gap-8">
+        {whyChooseUsList.map((item, index) => (
+          <div
+            key={index}
+            className="w-full sm:w-[80%] md:w-[45%] lg:w-[30%] bg-white shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl p-5 sm:p-6 flex items-start gap-4"
+          >
+            <Image
+              src={item.image}
+              alt={item.title}
+              width={64}
+              height={64}
+              className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
+            />
+            <div>
+              <h2 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">
+                {item.title}
+              </h2>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
 
   );
 };
