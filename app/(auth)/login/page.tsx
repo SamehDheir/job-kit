@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import Link from 'next/link';
 import { FiEye, FiEyeOff, FiMail, FiLock } from 'react-icons/fi';
 import Shape from '@/components/ui/shapes/Shape';
+import { useAuth } from '@/contexts/AuthContext';
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()
@@ -24,6 +25,7 @@ const initialValues = {
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = React.useState(false);
+  const { login } = useAuth();
 
   const handleSubmit = async (values: typeof initialValues, { setSubmitting, setFieldError }: any) => {
     try {
@@ -52,7 +54,7 @@ export default function LoginPage() {
       console.log('Login successful:', data.user);
       alert(`Welcome back, ${data.user.name}!`);
       
-      localStorage.setItem('user', JSON.stringify(data.user));
+      login(data.user);
       
       if (data.user.userType === 'COMPANY') {
         window.location.href = '/dashboard/company';

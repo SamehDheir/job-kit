@@ -1,0 +1,82 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User } from '@/types/auth.types';
+
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  login: (userData: User) => void;
+  logout: () => void;
+  isAuthenticated: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+      }
+    } catch (error) {
+      console.error('Error loading user from localStorage:', error);
+      localStorage.removeItem('user');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const login = (userData: User) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    window.location.href = '/auth/login';
+  };
+
+  const value: AuthContextType = {
+    user,
+    isLoading,
+    login,
+    logout,
+    isAuthenticated: !!user,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
+// Helper hook for role-based access
+export function useUserType() {
+  const { user } = useAuth();
+  return {
+    userType: user?.userType || null,
+    isCompany: user?.userType === 'COMPANY',
+    isUser: user?.userType === 'USER',
+  };
+}

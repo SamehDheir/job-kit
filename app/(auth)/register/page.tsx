@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import Link from "next/link";
 import { FiEye, FiEyeOff, FiMail, FiLock, FiUser } from "react-icons/fi";
 import Shape from "@/components/ui/shapes/Shape";
+import { useAuth } from "@/contexts/AuthContext";
 
 const registerSchema = Yup.object().shape({
 	name: Yup.string().required("Full name is required"),
@@ -31,6 +32,7 @@ const initialValues = {
 
 export default function RegisterPage() {
 	const [showPassword, setShowPassword] = React.useState(false);
+	const { login } = useAuth();
 
 	const handleSubmit = async (values: typeof initialValues, { setSubmitting, setFieldError }: any) => {
 		try {
@@ -59,6 +61,9 @@ export default function RegisterPage() {
 			}
 
 			alert('Account created successfully!');
+			
+			login(data.user);
+			
 			if (values.userType === 'COMPANY') {
 				window.location.href = '/dashboard/company';
 			} else {
