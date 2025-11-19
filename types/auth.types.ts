@@ -23,6 +23,21 @@ export interface RegisterRequest {
   email: string;
   password: string;
   userType: 'USER' | 'COMPANY';
+  // Company fields
+  companyName?: string;
+  industry?: string;
+  companySize?: string;
+  location?: string;
+  website?: string;
+  description?: string;
+  // Job Seeker fields
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  city?: string;
+  country?: string;
+  currentPosition?: string;
+  experienceLevel?: string;
 }
 
 export interface AuthResponse {

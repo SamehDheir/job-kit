@@ -5,9 +5,29 @@ import { RegisterRequest, AuthResponse, ErrorResponse, UserWithPassword } from '
 
 export async function POST(request: Request): Promise<NextResponse<AuthResponse | ErrorResponse>> {
   try {
-    const { name, email, password, userType }: RegisterRequest = await request.json();
+    const requestData = await request.json();
+    const { 
+      email, 
+      password, 
+      userType,
+      // Company fields
+      companyName,
+      industry,
+      companySize,
+      location,
+      website,
+      description,
+      // Job Seeker fields
+      firstName,
+      lastName,
+      phone,
+      city,
+      country,
+      currentPosition,
+      experienceLevel
+    } = requestData;
 
-    if (!name || !email || !password || !userType) {
+    if (!email || !password || !userType) {
       return NextResponse.json(
         { error: 'All fields are required' },
         { status: 400 }
@@ -19,6 +39,26 @@ export async function POST(request: Request): Promise<NextResponse<AuthResponse 
         { error: 'Invalid account type' },
         { status: 400 }
       );
+    }
+
+    // Validate company-specific fields
+    if (userType === 'COMPANY') {
+      if (!companyName || !industry || !companySize || !location) {
+        return NextResponse.json(
+          { error: 'Company name, industry, company size, and location are required for company accounts' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate job seeker-specific fields
+    if (userType === 'USER') {
+      if (!firstName || !lastName || !phone || !city) {
+        return NextResponse.json(
+          { error: 'First name, last name, phone, and city are required for job seeker accounts' },
+          { status: 400 }
+        );
+      }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,20 +89,54 @@ export async function POST(request: Request): Promise<NextResponse<AuthResponse 
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        userType,
+    // Create user with transaction to ensure both user and profile are created
+    const result = await prisma.$transaction(async (prisma) => {
+      // Create the user first
+      const user = await prisma.user.create({
+        data: {
+          name: userType === 'COMPANY' ? companyName : `${firstName} ${lastName}`,
+          email,
+          password: hashedPassword,
+          userType,
+        }
+      });
+
+      // Create the appropriate profile based on user type
+      if (userType === 'COMPANY') {
+        await prisma.company.create({
+          data: {
+            userId: user.id,
+            companyName,
+            industry,
+            companySize,
+            location,
+            website: website || null,
+            description: description || null,
+          }
+        });
+      } else if (userType === 'USER') {
+        await prisma.jobSeeker.create({
+          data: {
+            userId: user.id,
+            firstName,
+            lastName,
+            phone,
+            city,
+            country: country || null,
+            currentPosition: currentPosition || null,
+            experienceLevel: experienceLevel || null,
+          }
+        });
       }
+
+      return user;
     });
 
-    const { password: _, ...userWithoutPassword } = user as UserWithPassword;
+    const { password: _, ...userWithoutPassword } = result as UserWithPassword;
 
     return NextResponse.json(
       { 
-        message: 'User created successfully',
+        message: 'Account created successfully',
         user: userWithoutPassword
       },
       { status: 201 }
