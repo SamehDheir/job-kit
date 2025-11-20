@@ -1,33 +1,33 @@
+// src/app/dashboard/user/resume-builder/page.tsx
 "use client";
 
-import { useState } from "react";
-import ResumeForm from "../../../../components/dashboard/resumeForm/ResumeForm";
-import ResumePreview from "../../../../components/dashboard/ResumePreview";
-import { ResumeData } from "@/types/resume.data.types";
+import ResumeForm from "@/components/dashboard/resumeForm/ResumeForm";
+import ResumePreview from "@/components/dashboard/ResumePreview";
+import { useResume } from "@/contexts/ResumeContext";
 
 export default function ResumeBuilderPage() {
-    const [data, setData] = useState<ResumeData>({
-        name: "",
-        email: "",
-        phone: "",
-        summary: "",
-
-        skills: [],
-        languages: [],
-
-        education: [],
-        experience: [],
-        projects: [],
-    });
+    const { saveResume, loading } = useResume();
 
     return (
         <div className="min-h-screen p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-xl shadow">
-                <ResumeForm data={data} setData={setData} />
+                <ResumeForm />
             </div>
 
             <div className="bg-gray-100 p-6 rounded-xl shadow overflow-y-auto">
-                <ResumePreview data={data} />
+                <ResumePreview />
+
+                {/* Save Button */}
+                <div className="mt-4">
+                    <button
+                        onClick={saveResume}
+                        disabled={loading}
+                        className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+                    >
+                        {loading ? "Saving..." : "Save Resume"}
+                    </button>
+                </div>
+
             </div>
         </div>
     );

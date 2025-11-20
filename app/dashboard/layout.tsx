@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Avatar from '@/components/ui/Avatar';
-import { 
-  Briefcase, 
-  Plus, 
-  FileText, 
-  Settings, 
-  Menu, 
-  X, 
-  LogOut, 
+import {
+  Briefcase,
+  Plus,
+  FileText,
+  Settings,
+  Menu,
+  X,
+  LogOut,
   User,
   Bell,
   Search,
@@ -20,6 +20,7 @@ import {
   UserCheck,
   Building
 } from 'lucide-react';
+import { ResumeProvider } from '@/contexts/ResumeContext';
 
 export default function DashboardLayout({
   children,
@@ -41,8 +42,8 @@ export default function DashboardLayout({
     if (user.userType === 'COMPANY') {
       return [
         ...baseNav,
-        { 
-          name: 'Company', 
+        {
+          name: 'Company',
           items: [
             { name: 'Company Dashboard', href: '/dashboard/company', icon: Building },
             { name: 'Add Job', href: '/dashboard/company/add-job', icon: Plus },
@@ -54,8 +55,8 @@ export default function DashboardLayout({
     } else {
       return [
         ...baseNav,
-        { 
-          name: 'User', 
+        {
+          name: 'User',
           items: [
             { name: 'User Dashboard', href: '/dashboard/user', icon: UserCheck },
             { name: 'Resume Builder', href: '/dashboard/user/resume-builder', icon: FileText },
@@ -79,7 +80,7 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-gray-50 lg:flex">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -121,15 +122,15 @@ export default function DashboardLayout({
                       {section.items.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.href);
-                        
+
                         return (
                           <li key={item.name}>
                             <Link
                               href={item.href}
                               className={`
                                 flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200
-                                ${active 
-                                  ? 'bg-primary text-white shadow-md' 
+                                ${active
+                                  ? 'bg-primary text-white shadow-md'
                                   : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
                                 }
                               `}
@@ -148,15 +149,15 @@ export default function DashboardLayout({
                 // Single item (Dashboard)
                 const Icon = section.icon;
                 const active = isActive(section.href);
-                
+
                 return (
                   <li key={section.name}>
                     <Link
                       href={section.href}
                       className={`
                         flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200
-                        ${active 
-                          ? 'bg-primary text-white shadow-md' 
+                        ${active
+                          ? 'bg-primary text-white shadow-md'
                           : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
                         }
                       `}
@@ -195,16 +196,15 @@ export default function DashboardLayout({
                   <p className="text-xs text-gray-500 truncate">
                     {user.email}
                   </p>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
-                    user.userType === 'COMPANY' 
-                      ? 'bg-blue-100 text-blue-800' 
-                      : 'bg-green-100 text-green-800'
-                  }`}>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${user.userType === 'COMPANY'
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'bg-green-100 text-green-800'
+                    }`}>
                     {user.userType === 'COMPANY' ? 'Company' : 'Job Seeker'}
                   </span>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={logout}
                 className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -215,7 +215,7 @@ export default function DashboardLayout({
           ) : (
             <div className="text-center">
               <p className="text-sm text-gray-500 mb-2">Not logged in</p>
-              <Link 
+              <Link
                 href="/auth/login"
                 className="text-primary hover:underline text-sm"
               >
@@ -238,7 +238,7 @@ export default function DashboardLayout({
               >
                 <Menu className="h-5 w-5" />
               </button>
-              
+
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">
                   JobKit Dashboard
@@ -281,7 +281,9 @@ export default function DashboardLayout({
         {/* Page content */}
         <main className="p-4 sm:p-6">
           <div className="max-w-7xl mx-auto">
-            {children}
+            <ResumeProvider>
+              {children}
+            </ResumeProvider>
           </div>
         </main>
       </div>

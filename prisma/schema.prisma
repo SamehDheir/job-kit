@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,7 +10,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// User model for authentication
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -19,11 +20,38 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  resumes Resume[]
+
   @@map("users")
 }
 
-// Enum for user types
 enum UserType {
   USER
   COMPANY
+}
+
+model Resume {
+  id     String @id @default(cuid())
+  // IMPORTANT: You must ensure 'userId' is passed in the POST request body
+  // or retrieve the user ID from the session/authentication context in the API handler.
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  name    String
+  email   String
+  phone   String
+  summary String
+
+  skills    String[] // PostgreSQL array type for simple strings
+  languages String[] // PostgreSQL array type for simple strings
+
+  // Json type for arrays of complex objects (EducationItem, ExperienceItem, ProjectItem)
+  education  Json
+  experience Json
+  projects   Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("resumes")
 }
