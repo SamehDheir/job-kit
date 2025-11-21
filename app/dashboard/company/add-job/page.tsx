@@ -348,6 +348,7 @@ const AddJobPage = () => {
                         className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
                         placeholder="50000"
                         min="0"
+                        value={values.salaryMin ?? ""}
                       />
                       <ErrorMessage
                         name="salaryMin"
@@ -370,6 +371,7 @@ const AddJobPage = () => {
                         }`}
                         placeholder="80000"
                         min="0"
+                        value={values.salaryMax ?? ""}
                       />
                       <ErrorMessage
                         name="salaryMax"
