@@ -1,7 +1,13 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/types/auth.types';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { User } from "@/types/auth.types";
 
 interface AuthContextType {
   user: User | null;
@@ -24,28 +30,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Load user from localStorage on mount
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem('user');
+      const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const userData = JSON.parse(storedUser);
         setUser(userData);
       }
     } catch (error) {
-      console.error('Error loading user from localStorage:', error);
-      localStorage.removeItem('user');
+      console.error("Error loading user from localStorage:", error);
+      localStorage.removeItem("user");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   const login = (userData: User) => {
+    console.log("Logging in user:", userData);
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
-    window.location.href = '/auth/login';
+    localStorage.removeItem("user");
+    window.location.href = "/login";
   };
 
   const value: AuthContextType = {
@@ -56,17 +63,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAuthenticated: !!user,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
@@ -76,7 +79,7 @@ export function useUserType() {
   const { user } = useAuth();
   return {
     userType: user?.userType || null,
-    isCompany: user?.userType === 'COMPANY',
-    isUser: user?.userType === 'USER',
+    isCompany: user?.userType === "COMPANY",
+    isUser: user?.userType === "USER",
   };
 }

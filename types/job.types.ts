@@ -6,14 +6,14 @@ export interface Job {
   requirements: string[];
   location: string;
   workType: WorkType;
-  salaryMin?: number;
-  salaryMax?: number;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
   currency: string;
   benefits: string[];
   skills: string[];
   experienceLevel: string;
   isActive: boolean;
-  deadline?: Date;
+  deadline?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,8 +32,8 @@ export interface CreateJobRequest {
   requirements: string[];
   location: string;
   workType: WorkType;
-  salaryMin?: number;
-  salaryMax?: number;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
   currency?: string;
   benefits: string[];
   skills: string[];

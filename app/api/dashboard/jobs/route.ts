@@ -50,13 +50,24 @@ export async function POST(request: Request): Promise<NextResponse<JobResponse |
       );
     }
 
-    // TODO: Get company ID from authenticated user session
-    // For now, we'll get the first company (you should implement proper authentication)
-    const company = await prisma.company.findFirst();
+    // Get company ID from request headers (in real app, this would come from session/JWT)
+    const companyId = request.headers.get('x-company-id');
+    
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Company ID is required. Please ensure you are logged in.' },
+        { status: 401 }
+      );
+    }
+
+    // Verify company exists
+    const company = await prisma.company.findUnique({
+      where: { id: companyId }
+    });
     
     if (!company) {
       return NextResponse.json(
-        { error: 'Company not found. Please ensure you are logged in as a company user.' },
+        { error: 'Company not found.' },
         { status: 404 }
       );
     }
@@ -64,7 +75,7 @@ export async function POST(request: Request): Promise<NextResponse<JobResponse |
     // Create the job
     const job = await prisma.job.create({
       data: {
-        companyId: company.id,
+        companyId: companyId,
         title: title.trim(),
         description: description.trim(),
         requirements: requirements.filter(req => req.trim()),
@@ -116,11 +127,22 @@ export async function GET(request: Request): Promise<NextResponse<{ jobs: any[],
     const workType = searchParams.get('workType') || '';
     const experienceLevel = searchParams.get('experienceLevel') || '';
 
+    // Get company ID from request headers
+    const companyId = request.headers.get('x-company-id');
+    
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Company ID is required. Please ensure you are logged in.' },
+        { status: 401 }
+      );
+    }
+
     const skip = (page - 1) * limit;
 
-    // Build where clause
+    // Build where clause - only show jobs for this company
     const where: any = {
       isActive: true,
+      companyId: companyId,
     };
 
     if (search) {

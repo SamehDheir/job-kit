@@ -6,6 +6,8 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
 import Button from "@/components/ui/Button";
 import { WorkType } from "@/types/job.types";
+import { useAuth } from "@/contexts/AuthContext";
+import { createApiHeaders } from "@/lib/api-utils";
 
 interface JobFormData {
   title: string;
@@ -123,6 +125,7 @@ const initialValues: JobFormData = {
 
 const AddJobPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (
@@ -144,9 +147,7 @@ const AddJobPage = () => {
 
       const response = await fetch("/api/dashboard/jobs", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: createApiHeaders(user),
         body: JSON.stringify(submitData),
       });
 

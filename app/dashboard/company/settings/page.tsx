@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Button from "@/components/ui/Button";
+import LogoUploader from "@/components/ui/LogoUploader";
 import { CompanyFormData, CompanySize } from "@/types/company.types";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  createApiHeaders,
+  createApiHeadersWithoutContentType,
+} from "@/lib/api-utils";
 
 // Validation Schema
 const companyValidationSchema = Yup.object().shape({
@@ -15,25 +21,19 @@ const companyValidationSchema = Yup.object().shape({
     .required("Company name is required"),
   industry: Yup.string()
     .min(2, "Industry must be at least 2 characters")
-    .max(50, "Industry must not exceed 50 characters")
-    .required("Industry is required"),
-  companySize: Yup.string().required("Company size is required"),
+    .max(50, "Industry must not exceed 50 characters"),
+  companySize: Yup.string(),
   location: Yup.string()
     .min(2, "Location must be at least 2 characters")
-    .max(100, "Location must not exceed 100 characters")
-    .required("Location is required"),
+    .max(100, "Location must not exceed 100 characters"),
   website: Yup.string().url("Please enter a valid URL").nullable(),
   description: Yup.string()
     .min(10, "Description must be at least 10 characters")
-    .max(1000, "Description must not exceed 1000 characters")
-    .required("Company description is required"),
+    .max(1000, "Description must not exceed 1000 characters"),
   contactPhone: Yup.string()
     .matches(/^[+]?[\d\s-()]+$/, "Please enter a valid phone number")
-    .min(10, "Phone number must be at least 10 digits")
-    .required("Contact phone is required"),
-  contactEmail: Yup.string()
-    .email("Please enter a valid email address")
-    .required("Contact email is required"),
+    .min(10, "Phone number must be at least 10 digits"),
+  contactEmail: Yup.string().email("Please enter a valid email address"),
   establishedYear: Yup.number()
     .min(1800, "Established year must be after 1800")
     .max(new Date().getFullYear(), "Established year cannot be in the future")
@@ -42,8 +42,10 @@ const companyValidationSchema = Yup.object().shape({
 
 const CompanySettingsPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [logoPreview, setLogoPreview] = useState<string>("");
+  const [logoUploading, setLogoUploading] = useState(false);
   const [initialValues, setInitialValues] = useState<CompanyFormData>({
     companyName: "",
     industry: "",
@@ -60,8 +62,15 @@ const CompanySettingsPage = () => {
   // Fetch company data
   useEffect(() => {
     const fetchCompanyData = async () => {
+      if (!user?.companyId) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await fetch("/api/dashboard/company/profile");
+        const response = await fetch("/api/dashboard/company/profile", {
+          headers: createApiHeadersWithoutContentType(user),
+        });
         if (response.ok) {
           const data = await response.json();
           const company = data.company;
@@ -94,7 +103,7 @@ const CompanySettingsPage = () => {
     };
 
     fetchCompanyData();
-  }, []);
+  }, [user]);
 
   const handleSubmit = async (
     values: CompanyFormData,
@@ -103,9 +112,7 @@ const CompanySettingsPage = () => {
     try {
       const response = await fetch("/api/dashboard/company/profile", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: createApiHeaders(user),
         body: JSON.stringify(values),
       });
 
@@ -121,17 +128,6 @@ const CompanySettingsPage = () => {
       alert("Failed to update company settings");
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -189,51 +185,15 @@ const CompanySettingsPage = () => {
                 <Form className="space-y-8">
                   {/* Company Logo */}
                   <div className="bg-gray-50 p-6 rounded-lg">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                      Company Logo
-                    </h2>
-
-                    <div className="flex items-center space-x-6">
-                      <div className="shrink-0">
-                        <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                          {logoPreview ? (
-                            <img
-                              src={logoPreview}
-                              alt="Company Logo"
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <svg
-                              className="w-8 h-8 text-gray-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Upload Logo
-                        </label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoChange}
-                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-orange-600 file:cursor-pointer"
-                        />
-                        <p className="text-xs text-gray-500 mt-2">
-                          PNG, JPG up to 2MB. Recommended size: 200x200px
-                        </p>
-                      </div>
-                    </div>
+                    <LogoUploader
+                      currentLogo={values.logo || ""}
+                      onLogoChange={(logoUrl: string) => {
+                        values.logo = logoUrl || "";
+                        setLogoPreview(logoUrl || "");
+                      }}
+                      onUploadStateChange={setLogoUploading}
+                      disabled={isSubmitting || logoUploading}
+                    />
                   </div>
 
                   {/* Basic Information */}
@@ -457,10 +417,14 @@ const CompanySettingsPage = () => {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || logoUploading}
                       className="flex-1"
                     >
-                      {isSubmitting ? "Updating..." : "Update Company Settings"}
+                      {logoUploading
+                        ? "Uploading Logo..."
+                        : isSubmitting
+                        ? "Updating..."
+                        : "Update Company Settings"}
                     </Button>
                   </div>
                 </Form>

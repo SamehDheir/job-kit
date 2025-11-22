@@ -7,8 +7,22 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
+    
+    // Get company ID from request headers
+    const companyId = request.headers.get('x-company-id');
+    
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Company ID is required. Please ensure you are logged in.' },
+        { status: 401 }
+      );
+    }
+
     const job = await prisma.job.findUnique({
-      where: { id },
+      where: { 
+        id,
+        companyId: companyId // Only allow access to jobs owned by this company
+      },
       include: {
         company: {
           select: {
@@ -46,9 +60,22 @@ export async function PATCH(
     const { id } = await params;
     const updates = await request.json();
     
-    // Validate that job exists and belongs to company
+    // Get company ID from request headers
+    const companyId = request.headers.get('x-company-id');
+    
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Company ID is required. Please ensure you are logged in.' },
+        { status: 401 }
+      );
+    }
+    
+    // Validate that job exists and belongs to this company
     const existingJob = await prisma.job.findUnique({
-      where: { id },
+      where: { 
+        id,
+        companyId: companyId
+      },
       include: { company: true }
     });
 
@@ -97,9 +124,23 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
-    // Check if job exists and belongs to company
+    
+    // Get company ID from request headers
+    const companyId = request.headers.get('x-company-id');
+    
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Company ID is required. Please ensure you are logged in.' },
+        { status: 401 }
+      );
+    }
+    
+    // Check if job exists and belongs to this company
     const existingJob = await prisma.job.findUnique({
-      where: { id },
+      where: { 
+        id,
+        companyId: companyId
+      },
       include: { company: true }
     });
 

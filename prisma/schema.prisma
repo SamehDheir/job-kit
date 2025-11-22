@@ -27,9 +27,9 @@ model Company {
   id              String   @id @default(cuid())
   userId          String   @unique @map("user_id")
   companyName     String   @map("company_name")
-  industry        String
-  companySize     String   @map("company_size")
-  location        String
+  industry        String?
+  companySize     String?  @map("company_size")
+  location        String?
   website         String?
   description     String?
   logo            String?

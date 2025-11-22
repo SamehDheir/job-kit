@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: Request): Promise<NextResponse> {
   try {
-    // In real app, get company ID from session/auth
-    // For now, get the first company
-    const company = await prisma.company.findFirst({
-      orderBy: { createdAt: 'desc' }
+    // Get company ID from request headers
+    const companyId = request.headers.get('x-company-id');
+    
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Company ID is required. Please ensure you are logged in.' },
+        { status: 401 }
+      );
+    }
+
+    const company = await prisma.company.findUnique({
+      where: { id: companyId }
     });
 
     if (!company) {
@@ -31,10 +39,18 @@ export async function PUT(request: Request): Promise<NextResponse> {
   try {
     const updates = await request.json();
     
-    // In real app, get company ID from session/auth
-    // For now, update the first company
-    const existingCompany = await prisma.company.findFirst({
-      orderBy: { createdAt: 'desc' }
+    // Get company ID from request headers
+    const companyId = request.headers.get('x-company-id');
+    
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Company ID is required. Please ensure you are logged in.' },
+        { status: 401 }
+      );
+    }
+    
+    const existingCompany = await prisma.company.findUnique({
+      where: { id: companyId }
     });
 
     if (!existingCompany) {

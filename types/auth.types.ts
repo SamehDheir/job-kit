@@ -5,6 +5,7 @@ export interface User {
   email: string;
   userType: 'USER' | 'COMPANY';
   avatarUrl?: string | null;
+  companyId?: string | null;
   createdAt: Date;
   updatedAt?: Date;
 }
