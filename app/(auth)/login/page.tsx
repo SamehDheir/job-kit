@@ -53,15 +53,15 @@ export default function LoginPage() {
 
       console.log('Login successful:', data.user);
       alert(`Welcome back, ${data.user.name}!`);
-      
+
       login(data.user);
-      
+
       if (data.user.userType === 'COMPANY') {
         window.location.href = '/dashboard/company';
       } else {
         window.location.href = '/dashboard/user';
       }
-      
+
     } catch (error) {
       console.error('Login error:', error);
       alert('Something went wrong. Please try again.');
@@ -87,7 +87,7 @@ export default function LoginPage() {
         className="absolute bottom-32 left-32 animate-bounce opacity-20"
         size={70}
       />
-      
+
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-6">
@@ -125,11 +125,10 @@ export default function LoginPage() {
                       name="email"
                       type="email"
                       placeholder="Enter your email"
-                      className={`w-full pl-10 pr-4 py-3 border rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${
-                        errors.email && touched.email
-                          ? 'border-error bg-red-50'
-                          : 'border-gray-300 bg-white hover:border-gray-400'
-                      }`}
+                      className={`w-full pl-10 pr-4 py-3 border rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.email && touched.email
+                        ? 'border-error bg-red-50'
+                        : 'border-gray-300 bg-white hover:border-gray-400'
+                        }`}
                     />
                   </div>
                   <ErrorMessage
@@ -152,11 +151,10 @@ export default function LoginPage() {
                       name="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
-                      className={`w-full pl-10 pr-12 py-3 border rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${
-                        errors.password && touched.password
-                          ? 'border-error bg-red-50'
-                          : 'border-gray-300 bg-white hover:border-gray-400'
-                      }`}
+                      className={`w-full pl-10 pr-12 py-3 border rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${errors.password && touched.password
+                        ? 'border-error bg-red-50'
+                        : 'border-gray-300 bg-white hover:border-gray-400'
+                        }`}
                     />
                     <button
                       type="button"
@@ -200,11 +198,10 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full px-6 py-3 rounded-md transition font-medium ${
-                    isSubmitting
-                      ? 'bg-gray-400 cursor-not-allowed text-white'
-                      : 'bg-primary text-white hover:bg-[#E04E00]'
-                  }`}
+                  className={`w-full px-6 py-3 rounded-md transition font-medium ${isSubmitting
+                    ? 'bg-gray-400 cursor-not-allowed text-white'
+                    : 'bg-primary text-white hover:bg-[#E04E00]'
+                    }`}
                 >
                   {isSubmitting ? (
                     <div className="flex items-center justify-center gap-2">
@@ -260,7 +257,7 @@ export default function LoginPage() {
                 className="w-full inline-flex justify-center py-2.5 px-4 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-primary/30 transition-all"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
                 <span className="ml-2">Facebook</span>
               </button>
@@ -292,7 +289,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-        
+
         <Shape
           type="rectangle"
           className="absolute bottom-20 right-10 animate-bounce opacity-10"

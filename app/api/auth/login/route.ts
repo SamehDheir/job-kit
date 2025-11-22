@@ -36,10 +36,11 @@ export async function POST(request: Request): Promise<NextResponse<AuthResponse 
 
     const { password: _, ...userWithoutPassword } = user;
 
+
     return NextResponse.json(
-      { 
+      {
         message: 'Login successful',
-        user: userWithoutPassword
+        user: userWithoutPassword,
       },
       { status: 200 }
     );

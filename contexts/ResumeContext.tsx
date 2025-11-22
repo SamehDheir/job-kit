@@ -35,15 +35,31 @@ export const ResumeProvider = ({ children }: { children: ReactNode }) => {
         try {
             // Convert complex objects (arrays of objects) to JSON strings
             // to match the `Json` field type in Prisma schema.
+            // console.log(resumeData);
+            const userData = localStorage.getItem("user");
+            let userId: string | undefined = undefined; // تعريف صحيح
+
+            if (userData) {
+                const userObj = JSON.parse(userData); // تحويل النص لـ object
+                userId = userObj.id;
+            } else {
+                console.log("No user found in localStorage");
+            }
+
+
+
             const dataToSend = {
                 ...resumeData,
-                education: JSON.stringify(resumeData.education),
-                experience: JSON.stringify(resumeData.experience),
-                projects: JSON.stringify(resumeData.projects),
+                education: resumeData.education,
+                experience: resumeData.experience,
+                projects: resumeData.projects,
+                userId: userId
+
                 // You might need to add userId here if you're using authentication
                 // userId: "some-user-id" // Replace with actual logic to get userId
             };
-
+            console.log(dataToSend);
+            // console.log( JSON.stringify(dataToSend));
 
             const res = await fetch("/api/resume", {
                 method: "POST",
