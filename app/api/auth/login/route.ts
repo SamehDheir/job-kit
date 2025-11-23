@@ -15,8 +15,11 @@ export async function POST(request: Request): Promise<NextResponse<AuthResponse 
     }
 
     const user = await prisma.user.findUnique({
-      where: { email }
-    }) as UserWithPassword | null;
+      where: { email },
+      include: {
+        company: true
+      }
+    }) as (UserWithPassword & { company?: { id: string } }) | null;
 
     if (!user) {
       return NextResponse.json(
@@ -34,12 +37,24 @@ export async function POST(request: Request): Promise<NextResponse<AuthResponse 
       );
     }
 
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _, company, ...userWithoutPassword } = user;
+    
+    // Add company ID if user is a company
+    const userResponse = {
+      ...userWithoutPassword,
+      companyId: user.userType === 'COMPANY' ? company?.id : null
+    };
+
+    console.log('Login response:', { 
+      userType: userResponse.userType, 
+      companyId: userResponse.companyId,
+      hasCompany: !!company 
+    });
 
     return NextResponse.json(
       { 
         message: 'Login successful',
-        user: userWithoutPassword
+        user: userResponse
       },
       { status: 200 }
     );

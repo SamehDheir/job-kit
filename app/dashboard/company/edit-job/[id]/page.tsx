@@ -6,6 +6,12 @@ import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Button from "@/components/ui/Button";
 import { WorkType } from "@/types/job.types";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  createApiHeaders,
+  createApiHeadersWithoutContentType,
+} from "@/lib/api-utils";
+import toast from "react-hot-toast";
 
 interface JobFormData {
   title: string;
@@ -84,6 +90,7 @@ const jobValidationSchema = Yup.object().shape({
 
 const EditJobPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const params = useParams();
   const jobId = params.id as string;
   const [loading, setLoading] = useState(true);
@@ -106,7 +113,9 @@ const EditJobPage = () => {
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const response = await fetch(`/api/dashboard/jobs/${jobId}`);
+        const response = await fetch(`/api/dashboard/jobs/${jobId}`, {
+          headers: createApiHeadersWithoutContentType(user),
+        });
         if (response.ok) {
           const data = await response.json();
           const job = data.job;
@@ -128,22 +137,34 @@ const EditJobPage = () => {
               : "",
           });
         } else {
-          alert("Failed to fetch job data");
+          const errorData = await response.json();
+          if (response.status === 401) {
+            alert(
+              "Authentication error. Please log out and log in again to continue."
+            );
+          } else {
+            alert(
+              "Failed to fetch job data: " +
+                (errorData.error || "Unknown error")
+            );
+          }
           router.push("/dashboard/company/all-jobs");
         }
       } catch (error) {
         console.error("Error fetching job:", error);
-        alert("Failed to fetch job data");
+        alert(
+          "Failed to fetch job data. Please check your connection and try again."
+        );
         router.push("/dashboard/company/all-jobs");
       } finally {
         setLoading(false);
       }
     };
 
-    if (jobId) {
+    if (jobId && user) {
       fetchJob();
     }
-  }, [jobId, router]);
+  }, [jobId, router, user]);
 
   const handleSubmit = async (
     values: JobFormData,
@@ -152,9 +173,7 @@ const EditJobPage = () => {
     try {
       const response = await fetch(`/api/dashboard/jobs/${jobId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: createApiHeaders(user),
         body: JSON.stringify({
           ...values,
           deadline: values.deadline
@@ -164,15 +183,15 @@ const EditJobPage = () => {
       });
 
       if (response.ok) {
-        alert("Job updated successfully!");
+        toast.success("Job updated successfully!");
         router.push("/dashboard/company/all-jobs");
       } else {
         const data = await response.json();
-        alert(data.error || "Failed to update job");
+        toast.error(data.error || "Failed to update job");
       }
     } catch (error) {
       console.error("Error updating job:", error);
-      alert("Failed to update job");
+      toast.error("Failed to update job");
     } finally {
       setSubmitting(false);
     }

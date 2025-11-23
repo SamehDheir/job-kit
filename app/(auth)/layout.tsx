@@ -1,4 +1,5 @@
-import React from 'react';
+import React from "react";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -6,8 +7,8 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="auth-layout">
-      {children}
-    </div>
+    <AuthGuard>
+      <div className="auth-layout">{children}</div>
+    </AuthGuard>
   );
 }

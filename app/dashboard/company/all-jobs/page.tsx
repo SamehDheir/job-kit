@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { Job, WorkType } from "@/types/job.types";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  createApiHeaders,
+  createApiHeadersWithoutContentType,
+} from "@/lib/api-utils";
+import toast from "react-hot-toast";
 
 interface JobWithCompany extends Job {
   company: {
@@ -16,6 +22,7 @@ interface JobWithCompany extends Job {
 
 const AllJobsPage = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [jobs, setJobs] = useState<JobWithCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,7 +54,9 @@ const AllJobsPage = () => {
         ...(filterExperience && { experienceLevel: filterExperience }),
       });
 
-      const response = await fetch(`/api/dashboard/jobs?${params}`);
+      const response = await fetch(`/api/dashboard/jobs?${params}`, {
+        headers: createApiHeadersWithoutContentType(user),
+      });
       const data = await response.json();
 
       if (response.ok) {
@@ -68,19 +77,20 @@ const AllJobsPage = () => {
     try {
       const response = await fetch(`/api/dashboard/jobs/${jobId}`, {
         method: "DELETE",
+        headers: createApiHeadersWithoutContentType(user),
       });
 
       if (response.ok) {
-        alert("Job deleted successfully!");
+        toast.success("Job deleted successfully!");
         fetchJobs(); // Refresh the list
         setDeleteModal({ show: false, jobId: "", jobTitle: "" });
       } else {
         const data = await response.json();
-        alert(data.error || "Failed to delete job");
+        toast.error(data.error || "Failed to delete job");
       }
     } catch (error) {
       console.error("Error deleting job:", error);
-      alert("Failed to delete job");
+      toast.error("Failed to delete job");
     }
   };
 
@@ -89,24 +99,28 @@ const AllJobsPage = () => {
     try {
       const response = await fetch(`/api/dashboard/jobs/${jobId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: createApiHeaders(user),
         body: JSON.stringify({ isActive: !currentStatus }),
       });
 
       if (response.ok) {
-        alert(
+        // Update the job status locally without refetching
+        setJobs((prevJobs) =>
+          prevJobs.map((job) =>
+            job.id === jobId ? { ...job, isActive: !currentStatus } : job
+          )
+        );
+
+        toast.success(
           `Job ${!currentStatus ? "activated" : "deactivated"} successfully!`
         );
-        fetchJobs(); // Refresh the list
       } else {
         const data = await response.json();
-        alert(data.error || "Failed to update job status");
+        toast.error(data.error || "Failed to update job status");
       }
     } catch (error) {
       console.error("Error updating job status:", error);
-      alert("Failed to update job status");
+      toast.error("Failed to update job status");
     }
   };
 
