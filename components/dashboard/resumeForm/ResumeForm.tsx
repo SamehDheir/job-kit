@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import {
   EducationItem,
   ExperienceItem,
@@ -10,6 +10,7 @@ import {
 } from "@/types/resume.data.types";
 import { useResume } from "@/contexts/ResumeContext";
 import Button from "@/components/ui/Button";
+import PersonalInfo from "./PersonalInfo";
 import EducationSection from "./EducationSection";
 import ExperienceSection from "./ExperienceSection";
 import ProjectSection from "./ProjectSection";
@@ -23,12 +24,7 @@ export default function ResumeForm() {
   const [skillInput, setSkillInput] = useState("");
   const [languageInput, setLanguageInput] = useState("");
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setResumeData({ ...resumeData, [name]: value });
-  };
+  
 
   const addSkill = () => {
     if (!skillInput.trim()) return;
@@ -91,38 +87,7 @@ export default function ResumeForm() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="mb-3 font-semibold text-xl">Personal Info</h2>
-        <input
-          name="name"
-          value={resumeData.name}
-          onChange={handleChange}
-          placeholder="Full Name"
-          className="block mb-2 p-2 border rounded w-full"
-        />
-        <input
-          name="email"
-          value={resumeData.email}
-          onChange={handleChange}
-          placeholder="Email"
-          className="block mb-2 p-2 border rounded w-full"
-        />
-        <input
-          name="phone"
-          value={resumeData.phone}
-          onChange={handleChange}
-          placeholder="Phone"
-          className="block mb-2 p-2 border rounded w-full"
-        />
-        <textarea
-          name="summary"
-          value={resumeData.summary}
-          onChange={handleChange}
-          placeholder="Professional summary..."
-          className="block p-2 border rounded w-full h-24"
-        />
-      </div>
-
+        <PersonalInfo />
       <div>
         <h2 className="mb-3 font-semibold text-xl">Skills</h2>
         <div className="flex gap-2">

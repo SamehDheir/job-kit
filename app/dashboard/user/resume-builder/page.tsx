@@ -9,7 +9,7 @@ import { useResume } from "@/contexts/ResumeContext";
 
 
 export default function ResumeBuilderPage() {
-    const { saveResume, loading, loadResume, resumeData } = useResume();
+    const { saveResume, loading, loadResume } = useResume();
    const router = useRouter();
 
     useEffect(() => {
@@ -19,7 +19,7 @@ export default function ResumeBuilderPage() {
    return (
         <div className="gap-6 grid grid-cols-1 md:grid-cols-2 p-6 min-h-screen">
             <div className="bg-white shadow p-6 rounded-xl">
-               <ResumeForm key={JSON.stringify(resumeData)} />
+               <ResumeForm  />
             </div>
 
             <div className="bg-gray-100 shadow p-6 rounded-xl overflow-y-auto">
