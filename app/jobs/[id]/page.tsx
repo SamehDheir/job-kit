@@ -28,12 +28,10 @@ interface JobWithCompany extends Job {
 }
 
 interface JobDetailsPageProps {
-  params: {
-    id: string;
-  };
+  id: string;
 }
 
-export default function JobDetailsPage({ params }: JobDetailsPageProps) {
+export default function JobDetailsPage({ id }: JobDetailsPageProps) {
   const [job, setJob] = useState<JobWithCompany | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +42,7 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
     const fetchJobDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/jobs?id=${params.id}`);
+        const response = await fetch(`/api/jobs?id=${id}`);
         if (!response.ok) {
           throw new Error("Failed to load job details");
         }
@@ -58,7 +56,7 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
     };
 
     fetchJobDetails();
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
     return (
@@ -103,13 +101,15 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
 
   const formatSalary = (min?: number | null, max?: number | null) => {
     if (!min && !max) return "Negotiable";
-    if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+    if (min && max)
+      return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
     if (min) return `From $${min.toLocaleString()}`;
     return `Up to $${max?.toLocaleString()}`;
   };
 
   const isDeadlineApproaching =
-    job.deadline && new Date(job.deadline) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    job.deadline &&
+    new Date(job.deadline) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
@@ -152,26 +152,38 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
             {/* Quick Info */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white bg-opacity-10 rounded-lg p-3">
-                <p className="text-black text-xs font-medium opacity-80">Posted On</p>
-                <p className="font-bold text-black text-base mt-1">{formatDate(job.createdAt)}</p>
+                <p className="text-black text-xs font-medium opacity-80">
+                  Posted On
+                </p>
+                <p className="font-bold text-black text-base mt-1">
+                  {formatDate(job.createdAt)}
+                </p>
               </div>
               <div className="bg-white bg-opacity-10 rounded-lg p-3">
-                <p className="text-black text-xs font-medium opacity-80">Location</p>
+                <p className="text-black text-xs font-medium opacity-80">
+                  Location
+                </p>
                 <p className="font-bold text-black text-base flex items-center gap-1 mt-1">
                   <MapPin className="w-4 h-4" />
                   {job.location}
                 </p>
               </div>
               <div className="bg-white bg-opacity-10 rounded-lg p-3">
-                <p className="text-black text-xs font-medium opacity-80">Job Type</p>
+                <p className="text-black text-xs font-medium opacity-80">
+                  Job Type
+                </p>
                 <p className="font-bold text-black text-base flex items-center gap-1 mt-1">
                   <Briefcase className="w-4 h-4" />
                   {job.workType}
                 </p>
               </div>
               <div className="bg-white bg-opacity-10 rounded-lg p-3">
-                <p className="text-black text-xs font-medium opacity-80">Experience</p>
-                <p className="font-bold text-black text-base mt-1">{job.experienceLevel}</p>
+                <p className="text-black text-xs font-medium opacity-80">
+                  Experience
+                </p>
+                <p className="font-bold text-black text-base mt-1">
+                  {job.experienceLevel}
+                </p>
               </div>
             </div>
           </div>
@@ -192,7 +204,9 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
                 </div>
               </div>
               {job.currency && (
-                <p className="text-sm text-gray-500">Currency: {job.currency}</p>
+                <p className="text-sm text-gray-500">
+                  Currency: {job.currency}
+                </p>
               )}
             </div>
 
@@ -211,8 +225,16 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
                   }`}
                 />
                 <div>
-                  <p className="font-semibold text-gray-900">Application Deadline</p>
-                  <p className={isDeadlineApproaching ? "text-orange-700" : "text-blue-700"}>
+                  <p className="font-semibold text-gray-900">
+                    Application Deadline
+                  </p>
+                  <p
+                    className={
+                      isDeadlineApproaching
+                        ? "text-orange-700"
+                        : "text-blue-700"
+                    }
+                  >
                     {formatDate(job.deadline)}
                     {isDeadlineApproaching && (
                       <span className="ml-2 font-bold">⚠️ Closing Soon</span>
@@ -224,7 +246,9 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
 
             {/* Description */}
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Job Description</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Job Description
+              </h2>
               <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
                 <p className="whitespace-pre-wrap">{job.description}</p>
               </div>
@@ -245,7 +269,9 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
                     </li>
                   ))
                 ) : (
-                  <li className="text-gray-600">No specific requirements listed</li>
+                  <li className="text-gray-600">
+                    No specific requirements listed
+                  </li>
                 )}
               </ul>
             </div>
@@ -275,7 +301,9 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
             {/* Benefits */}
             {job.benefits && job.benefits.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Benefits</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Benefits
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {job.benefits.map((benefit, idx) => (
                     <div
@@ -293,7 +321,9 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
             {/* Company Info Section */}
             {job.company && (
               <div className="mb-8 pb-8 border-b-2 border-gray-200">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">About the Company</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  About the Company
+                </h2>
                 <div className="flex gap-4 items-start">
                   {job.company.logo && (
                     <Image
@@ -310,7 +340,8 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
                     </h3>
                     {job.company.industry && (
                       <p className="text-gray-600 mb-2">
-                        <span className="font-semibold">Industry:</span> {job.company.industry}
+                        <span className="font-semibold">Industry:</span>{" "}
+                        {job.company.industry}
                       </p>
                     )}
                     {job.company.location && (
