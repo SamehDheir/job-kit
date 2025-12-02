@@ -111,7 +111,6 @@ export default function DashboardLayout({
               href: "/dashboard/user/applications",
               icon: Briefcase,
             },
-            { name: "Profile", href: "/dashboard/user/profile", icon: User },
             {
               name: "User Settings",
               href: "/dashboard/user/settings",
