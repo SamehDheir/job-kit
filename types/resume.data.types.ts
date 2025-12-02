@@ -48,7 +48,6 @@ export interface ResumeData {
   projects: ProjectItem[];
 }
 
-//  للمعلومات الشخصية أثناء التحرير
 export interface TempPersonalInfo {
   type: 'personal';
   name: string;
@@ -56,7 +55,6 @@ export interface TempPersonalInfo {
   phone: string;
 }
 
-//   لجميع بيانات التحرير المؤقتة
 export type EditingData = 
   | TempPersonalInfo
   | EducationItem
@@ -65,3 +63,25 @@ export type EditingData =
   | SkillItem
   | LanguageItem
   | string;
+
+  // Raw data coming from API before migration
+export interface RawResumeData {
+  name?: string;
+  email?: string;
+  phone?: string;
+  summary?: string;
+  skills?: (string | SkillItem)[];
+  languages?: (string | LanguageItem)[];
+  education?: EducationItem[];
+  experience?: ExperienceItem[];
+  projects?: ProjectItem[];
+}
+
+// Types exposed by ResumeContext
+export interface ResumeContextProps {
+  resumeData: ResumeData;
+  setResumeData: React.Dispatch<React.SetStateAction<ResumeData>>;
+  saveResume: () => Promise<void>;
+  loading: boolean;
+  loadResume: () => Promise<void>;
+}

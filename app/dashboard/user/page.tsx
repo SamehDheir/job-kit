@@ -1,10 +1,16 @@
-// app/dashboard/user/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileText, Briefcase, Edit, RefreshCw, Plus,ArrowRight, User } from "lucide-react";
+import {
+  FileText,
+  Briefcase,
+  Edit,
+  RefreshCw,
+  Plus,
+  ArrowRight,
+  User,
+} from "lucide-react";
 import { useResume } from "@/contexts/ResumeContext";
-
 
 export default function UserDashboard() {
   const { resumeData, loadResume, loading } = useResume();
@@ -55,7 +61,13 @@ export default function UserDashboard() {
               <div className="bg-gray-100 group-hover:bg-gray-200 p-2 rounded-lg transition-colors">
                 <FileText className="w-5 h-5 text-gray-700" />
               </div>
-              <span className={`text-xs px-2 py-1 rounded-full ${hasCV ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${
+                  hasCV
+                    ? "bg-green-50 text-green-700"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
                 {hasCV ? "Active" : "Not Created"}
               </span>
             </div>
@@ -68,10 +80,12 @@ export default function UserDashboard() {
           {/* Applications Card */}
           <div className="group hover:shadow-lg p-6 border border-gray-200 rounded-xl transition-shadow">
             <div className="flex justify-between items-start mb-4">
-             <div className="bg-orange-100 group-hover:bg-orange-200 p-2 rounded-lg transition-colors">
-  <Briefcase className="w-5 h-5 text-orange-600" />
-</div>
-              <span className="font-bold text-gray-900 text-2xl">{applications}</span>
+              <div className="bg-orange-100 group-hover:bg-orange-200 p-2 rounded-lg transition-colors">
+                <Briefcase className="w-5 h-5 text-orange-600" />
+              </div>
+              <span className="font-bold text-gray-900 text-2xl">
+                {applications}
+              </span>
             </div>
             <h3 className="mb-1 font-semibold text-gray-900">Applications</h3>
             <p className="text-gray-500 text-sm">{"Jobs you've applied to"}</p>
@@ -80,15 +94,20 @@ export default function UserDashboard() {
           {/* Profile Card */}
           <div className="group hover:shadow-lg p-6 border border-gray-200 rounded-xl transition-shadow">
             <div className="flex justify-between items-start mb-4">
-             <div className="bg-green-100 group-hover:bg-green-200 p-2 rounded-lg transition-colors">
-  <User className="w-5 h-5 text-green-600" />
-</div>
-             <a href="/dashboard/user/profile" className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm">
-  Edit <ArrowRight className="w-3 h-3" />
-</a>
+              <div className="bg-green-100 group-hover:bg-green-200 p-2 rounded-lg transition-colors">
+                <User className="w-5 h-5 text-green-600" />
+              </div>
+              <a
+                href="/dashboard/user/profile"
+                className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 text-sm"
+              >
+                Edit <ArrowRight className="w-3 h-3" />
+              </a>
             </div>
             <h3 className="mb-1 font-semibold text-gray-900">Your Profile</h3>
-            <p className="text-gray-500 text-sm truncate">{resumeData.email || "No email set"}</p>
+            <p className="text-gray-500 text-sm truncate">
+              {resumeData.email || "No email set"}
+            </p>
           </div>
         </div>
 
@@ -97,7 +116,9 @@ export default function UserDashboard() {
           <div className="flex justify-between items-center p-6 border-gray-200 border-b">
             <div className="flex items-center gap-3">
               <FileText className="w-5 h-5 text-gray-700" />
-              <h2 className="font-semibold text-gray-900 text-lg">Your Resume</h2>
+              <h2 className="font-semibold text-gray-900 text-lg">
+                Your Resume
+              </h2>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -105,24 +126,28 @@ export default function UserDashboard() {
                 disabled={refreshing}
                 className="hover:bg-gray-100 p-2 rounded-lg transition-colors"
               >
-                <RefreshCw className={`w-4 h-4 text-gray-600 ${refreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`w-4 h-4 text-gray-600 ${
+                    refreshing ? "animate-spin" : ""
+                  }`}
+                />
               </button>
-            {hasCV && (
-        <div className="group relative">
-          <a
-            href="/dashboard/user/resume-editor"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium text-white text-sm transition-colors"
-          >
-            <Edit className="w-4 h-4" />
-            <span>Manage Resume</span>
-          </a>
-          
-          {/* Tooltip */}
-  <div className="hidden group-hover:block top-full -right-4 z-10 absolute bg-linear-to-r from-blue-50 to-blue-100 shadow-sm mt-3 px-2 py-2 border-blue-600 border-l-4 rounded-r-lg text-blue-900 text-xs whitespace-nowrap">
-  Preview • Edit • Delete • Export PDF
-</div>
-        </div>
-      )}
+              {hasCV && (
+                <div className="group relative">
+                  <a
+                    href="/dashboard/user/resume-editor"
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium text-white text-sm transition-colors"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span>Manage Resume</span>
+                  </a>
+
+                  {/* Tooltip */}
+                  <div className="hidden group-hover:block top-full -right-4 z-10 absolute bg-linear-to-r from-blue-50 to-blue-100 shadow-sm mt-3 px-2 py-2 border-blue-600 border-l-4 rounded-r-lg text-blue-900 text-xs whitespace-nowrap">
+                    Preview • Edit • Delete • Export PDF
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -131,34 +156,69 @@ export default function UserDashboard() {
               {/* Summary */}
               <div className="gap-6 grid md:grid-cols-2 bg-gray-50 p-5 rounded-lg">
                 <div>
-                  <p className="mb-1 font-medium text-gray-500 text-sm">Full Name</p>
-                  <p className="font-semibold text-gray-900 text-lg">{resumeData.name}</p>
+                  <p className="mb-1 font-medium text-gray-500 text-sm">
+                    Full Name
+                  </p>
+                  <p className="font-semibold text-gray-900 text-lg">
+                    {resumeData.name}
+                  </p>
                 </div>
                 <div>
-                  <p className="mb-1 font-medium text-gray-500 text-sm">Email</p>
-                  <p className="font-semibold text-gray-900 text-lg">{resumeData.email}</p>
+                  <p className="mb-1 font-medium text-gray-500 text-sm">
+                    Email
+                  </p>
+                  <p className="font-semibold text-gray-900 text-lg">
+                    {resumeData.email}
+                  </p>
                 </div>
                 <div>
-                  <p className="mb-1 font-medium text-gray-500 text-sm">Phone</p>
-                  <p className="font-semibold text-gray-900 text-lg">{resumeData.phone || "—"}</p>
+                  <p className="mb-1 font-medium text-gray-500 text-sm">
+                    Phone
+                  </p>
+                  <p className="font-semibold text-gray-900 text-lg">
+                    {resumeData.phone || "—"}
+                  </p>
                 </div>
                 <div>
-                  <p className="mb-1 font-medium text-gray-500 text-sm">Skills</p>
-                  <p className="font-semibold text-gray-900 text-lg">{resumeData.skills?.length || 0}</p>
+                  <p className="mb-1 font-medium text-gray-500 text-sm">
+                    Skills
+                  </p>
+                  <p className="font-semibold text-gray-900 text-lg">
+                    {resumeData.skills?.length || 0}
+                  </p>
                 </div>
               </div>
 
               {/* Stats */}
               <div className="gap-4 grid grid-cols-2 md:grid-cols-4">
                 {[
-                  { label: 'Education', value: resumeData.education?.length || 0 },
-                  { label: 'Experience', value: resumeData.experience?.length || 0 },
-                  { label: 'Projects', value: resumeData.projects?.length || 0 },
-                  { label: 'Languages', value: resumeData.languages?.length || 0 }
+                  {
+                    label: "Education",
+                    value: resumeData.education?.length || 0,
+                  },
+                  {
+                    label: "Experience",
+                    value: resumeData.experience?.length || 0,
+                  },
+                  {
+                    label: "Projects",
+                    value: resumeData.projects?.length || 0,
+                  },
+                  {
+                    label: "Languages",
+                    value: resumeData.languages?.length || 0,
+                  },
                 ].map((stat, i) => (
-                  <div key={i} className="hover:shadow-md p-4 border border-gray-200 rounded-lg text-center transition">
-                    <p className="mb-1 font-bold text-gray-900 text-3xl">{stat.value}</p>
-                    <p className="font-medium text-gray-600 text-sm">{stat.label}</p>
+                  <div
+                    key={i}
+                    className="hover:shadow-md p-4 border border-gray-200 rounded-lg text-center transition"
+                  >
+                    <p className="mb-1 font-bold text-gray-900 text-3xl">
+                      {stat.value}
+                    </p>
+                    <p className="font-medium text-gray-600 text-sm">
+                      {stat.label}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -167,7 +227,9 @@ export default function UserDashboard() {
             <div className="py-16 text-center">
               <FileText className="mx-auto mb-4 w-10 h-10 text-gray-400" />
               <h3 className="mb-2 font-bold text-xl">No Resume Yet</h3>
-              <p className="mx-auto mb-6 max-w-md text-gray-500">Create your professional resume now to start applying for jobs</p>
+              <p className="mx-auto mb-6 max-w-md text-gray-500">
+                Create your professional resume now to start applying for jobs
+              </p>
               <a
                 href="/dashboard/user/resume-builder"
                 className="inline-flex items-center gap-2 bg-blue-600 px-6 py-3 rounded-lg font-medium text-white transition"
@@ -178,31 +240,43 @@ export default function UserDashboard() {
           )}
         </div>
 
-            {/* Job Applications  */}
+        {/* Job Applications  */}
         <div className="border border-gray-200 rounded-xl overflow-hidden">
           <div className="flex justify-between items-center p-6 border-gray-200 border-b">
             <div className="flex items-center gap-3">
-              <Briefcase className="w-5 h-5 text-orange-600" />  
-              <h2 className="font-semibold text-gray-900 text-lg">Job Applications</h2>
+              <Briefcase className="w-5 h-5 text-orange-600" />
+              <h2 className="font-semibold text-gray-900 text-lg">
+                Job Applications
+              </h2>
             </div>
-         <a href="/dashboard/user/job-applications" className="inline-flex items-center gap-1 font-medium text-gray-600 hover:text-gray-900 text-sm">
-  View All <ArrowRight className="w-3 h-3" />
-</a>
+            <a
+              href="/dashboard/user/job-applications"
+              className="inline-flex items-center gap-1 font-medium text-gray-600 hover:text-gray-900 text-sm"
+            >
+              View All <ArrowRight className="w-3 h-3" />
+            </a>
           </div>
           <div className="p-6">
             <div className="space-y-3">
               {[1, 2, 3].map((_, i) => (
-                <div key={i} className="flex justify-between items-center hover:bg-gray-50 p-4 border border-gray-200 rounded-lg transition">
+                <div
+                  key={i}
+                  className="flex justify-between items-center hover:bg-gray-50 p-4 border border-gray-200 rounded-lg transition"
+                >
                   <div className="flex items-center gap-4">
-                    <div className="bg-orange-100 p-3 rounded-lg">  
-                      <Briefcase className="w-5 h-5 text-orange-600" /> 
+                    <div className="bg-orange-100 p-3 rounded-lg">
+                      <Briefcase className="w-5 h-5 text-orange-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold">Sample Job {i + 1}</h3>
-                      <p className="text-gray-500 text-sm">Applied {i + 1} days ago</p>
+                      <p className="text-gray-500 text-sm">
+                        Applied {i + 1} days ago
+                      </p>
                     </div>
                   </div>
-                  <span className="bg-yellow-100 px-3 py-1 rounded-full font-medium text-yellow-700 text-sm">Under Review</span>
+                  <span className="bg-yellow-100 px-3 py-1 rounded-full font-medium text-yellow-700 text-sm">
+                    Under Review
+                  </span>
                 </div>
               ))}
             </div>

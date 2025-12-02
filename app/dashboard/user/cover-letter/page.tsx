@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import { ResumeData } from "@/types/resume.data.types";
+import toast from "react-hot-toast";
 
 export default function GeneratePage() {
   const [form, setForm] = useState({
@@ -16,7 +17,7 @@ export default function GeneratePage() {
   async function handleSubmit() {
     setLoading(true);
 
-    // ----- Fetch latest resume from database -----
+    // Fetch latest resume from database
     const res = await fetch("/api/resume/latest");
     const data = await res.json();
 
@@ -25,12 +26,12 @@ export default function GeneratePage() {
     console.log("Latest Resume From DB:", resume);
 
     if (!resume) {
-      alert("لا يوجد سيرة ذاتية في قاعدة البيانات!");
+      toast.error("No CV available, please add one");
       setLoading(false);
       return;
     }
 
-    // ----- Send to generation API -----
+    // Send to generation API
     const generateRes = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

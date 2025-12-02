@@ -1,9 +1,7 @@
-// src/app/api/resume/route.ts
-
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-//  استرجاع السيرة الذاتية للمستخدم
+// GET - Fetch latest resume for the user
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -16,10 +14,10 @@ export async function GET(request: Request) {
       );
     }
 
-    //  جلب السيرة الأحدث (بترتيب تنازلي حسب تاريخ الإنشاء)
+    // Fetch the most recent resume
     const resume = await prisma.resume.findFirst({
       where: { userId },
-      orderBy: { createdAt: 'desc' }, 
+      orderBy: { createdAt: "desc" },
     });
 
     if (!resume) {
@@ -36,7 +34,7 @@ export async function GET(request: Request) {
   }
 }
 
-// DELETE - حذف السيرة الذاتية
+// DELETE - Remove user resume
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();
@@ -49,7 +47,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // التحقق من وجود السيرة أولاً
+    // Check if resume exists
     const resume = await prisma.resume.findFirst({
       where: { userId },
     });
@@ -58,7 +56,6 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
 
-    // الحذف باستخدام الـ id
     await prisma.resume.delete({
       where: { id: resume.id },
     });
@@ -76,7 +73,7 @@ export async function DELETE(request: Request) {
   }
 }
 
-// PUT  تحديث السيرة الذاتية (إذا وجدت) أو إنشاء جديدة
+// PUT - Update existing resume or create a new one
 export async function PUT(req: Request) {
   try {
     const data = await req.json();
@@ -89,13 +86,12 @@ export async function PUT(req: Request) {
       );
     }
 
-    // تحقق إذا كان الCV موجودة مسبقاً
     const existingResume = await prisma.resume.findFirst({
       where: { userId: data.userId },
     });
 
     if (existingResume) {
-      // تحديث السيرة الموجودة
+      // Update existing resume
       const updatedResume = await prisma.resume.update({
         where: { id: existingResume.id },
         data: {
@@ -110,10 +106,11 @@ export async function PUT(req: Request) {
           projects: data.projects,
         },
       });
+
       console.log("Updated existing resume:", updatedResume);
       return NextResponse.json(updatedResume, { status: 200 });
     } else {
-      // إنشاء سيرة جديدة
+      // Create new resume
       const newResume = await prisma.resume.create({
         data: {
           userId: data.userId,
@@ -128,6 +125,7 @@ export async function PUT(req: Request) {
           projects: data.projects,
         },
       });
+
       console.log("Created new resume:", newResume);
       return NextResponse.json(newResume, { status: 201 });
     }
@@ -140,13 +138,12 @@ export async function PUT(req: Request) {
   }
 }
 
+// POST - Create a new resume
 export async function POST(req: Request) {
   try {
-    // جلب البيانات من الطلب
     const data = await req.json();
     console.log("Received data:", data);
 
-    // التحقق من وجود userId
     if (!data.userId) {
       return NextResponse.json(
         { message: "User ID is required to save resume." },
@@ -154,7 +151,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // حفظ البيانات في قاعدة البيانات
     const resume = await prisma.resume.create({
       data: {
         userId: data.userId,
@@ -171,8 +167,6 @@ export async function POST(req: Request) {
     });
 
     console.log("Saved resume:", resume);
-
-    // إعادة البيانات كـ JSON
     return NextResponse.json(resume, { status: 201 });
   } catch (error) {
     console.error("Error in POST /api/resume:", error);
