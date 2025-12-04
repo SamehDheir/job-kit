@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createApiHeaders } from "@/lib/api-utils";
 import { Server } from "socket.io";
 
-// GET /api/messages/[threadId] - Get messages for a specific thread
+// Get messages for a specific thread
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ threadId: string }> }
@@ -84,7 +84,7 @@ export async function GET(
   }
 }
 
-// POST /api/messages/[threadId] - Send a new message in thread
+// Send a new message in thread
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ threadId: string }> }
@@ -114,14 +114,25 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { content } = body;
+    const { content, attachments, messageType } = body;
 
-    if (!content?.trim()) {
-      return NextResponse.json({ error: "Message content required" }, { status: 400 });
+    if (!content?.trim() && (!attachments || attachments.length === 0)) {
+      return NextResponse.json({ error: "Message content or attachments required" }, { status: 400 });
     }
 
     // Determine receiver (the other person in the thread)
     const receiverId = thread.companyId === userId ? thread.applicantId : thread.companyId;
+
+    // Determine message type
+    let finalMessageType = messageType || 'text';
+    if (attachments?.length) {
+      const hasImages = attachments.some((url: string) => url.match(/\.(jpg|jpeg|png|gif)$/i));
+      const hasDocs = attachments.some((url: string) => url.match(/\.(pdf|doc|docx|txt)$/i));
+      
+      if (hasImages && hasDocs) finalMessageType = 'mixed';
+      else if (hasImages) finalMessageType = 'image';
+      else if (hasDocs) finalMessageType = 'document';
+    }
 
     // Create the message
     const message = await prisma.message.create({
@@ -129,7 +140,9 @@ export async function POST(
         threadId,
         senderId: userId,
         receiverId,
-        content: content.trim()
+        content: content?.trim() || '',
+        attachments: attachments || [],
+        messageType: finalMessageType
       },
       include: {
         sender: {
@@ -148,10 +161,13 @@ export async function POST(
     });
 
     // Update thread with last message info
+    const lastMessage = content?.trim() || (attachments?.length ? 
+      `📎 ${attachments.length} attachment${attachments.length > 1 ? 's' : ''}` : '');
+
     await prisma.messageThread.update({
       where: { id: threadId },
       data: {
-        lastMessage: content.trim(),
+        lastMessage,
         lastMessageAt: new Date(),
         isRead: false
       }
@@ -167,6 +183,8 @@ export async function POST(
           message: {
             id: message.id,
             content: message.content,
+            attachments: message.attachments,
+            messageType: message.messageType,
             senderId: message.senderId,
             receiverId: message.receiverId,
             createdAt: message.createdAt.toISOString(),
@@ -177,7 +195,7 @@ export async function POST(
         // Emit to receiver's personal room
         global.io.to(`user:${receiverId}`).emit('thread-updated', {
           threadId,
-          lastMessage: content.trim(),
+          lastMessage,
           lastMessageAt: new Date().toISOString()
         });
       }

@@ -189,13 +189,15 @@ model MessageThread {
 }
 
 model Message {
-  id         String   @id @default(cuid())
-  threadId   String
-  senderId   String
-  receiverId String
-  content    String
-  isRead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id          String   @id @default(cuid())
+  threadId    String
+  senderId    String
+  receiverId  String
+  content     String
+  attachments String[] @default([]) // Array of file URLs
+  messageType String   @default("text") // "text", "image", "document", "mixed"
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
   // Relations
   thread   MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)

@@ -79,11 +79,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { receiverId, content, threadId, jobId } = body;
+    const { receiverId, content, threadId, jobId, attachments, messageType } = body;
 
-    if (!receiverId || !content) {
+    if (!receiverId || (!content && !attachments?.length)) {
       return NextResponse.json(
-        { error: "Receiver ID and content are required" },
+        { error: "Receiver ID and content or attachments are required" },
         { status: 400 }
       );
     }
@@ -133,13 +133,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Determine message type
+    let finalMessageType = messageType || 'text';
+    if (attachments?.length) {
+      const hasImages = attachments.some((url: string) => url.match(/\.(jpg|jpeg|png|gif)$/i));
+      const hasDocs = attachments.some((url: string) => url.match(/\.(pdf|doc|docx|txt)$/i));
+      
+      if (hasImages && hasDocs) finalMessageType = 'mixed';
+      else if (hasImages) finalMessageType = 'image';
+      else if (hasDocs) finalMessageType = 'document';
+    }
+
     // Create the message
     const message = await prisma.message.create({
       data: {
         threadId: thread.id,
         senderId: userId,
         receiverId,
-        content
+        content: content || '',
+        attachments: attachments || [],
+        messageType: finalMessageType
       },
       include: {
         sender: {
@@ -160,10 +173,13 @@ export async function POST(request: NextRequest) {
     });
 
     // Update thread with last message info
+    const lastMessage = content || (attachments?.length ? 
+      `📎 ${attachments.length} attachment${attachments.length > 1 ? 's' : ''}` : '');
+    
     await prisma.messageThread.update({
       where: { id: thread.id },
       data: {
-        lastMessage: content,
+        lastMessage,
         lastMessageAt: new Date(),
         isRead: false
       }

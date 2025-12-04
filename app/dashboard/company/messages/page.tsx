@@ -3,8 +3,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createApiHeadersWithoutContentType } from "@/lib/api-utils";
-import { MessageThread, Message, MessageStats } from "@/types/message.type";
+import {
+  MessageThread,
+  Message,
+  MessageStats,
+  MessageAttachment,
+} from "@/types/message.type";
 import toast from "react-hot-toast";
+import FileUpload from "@/components/ui/FileUpload";
+import MessageAttachmentView from "@/components/ui/MessageAttachmentView";
 import {
   MessageCircle,
   Send,
@@ -16,6 +23,7 @@ import {
   Users,
   Clock,
   CheckCircle,
+  Paperclip,
 } from "lucide-react";
 
 export default function MessagesPage() {
@@ -36,8 +44,33 @@ export default function MessagesPage() {
   });
   const [showMobileThreads, setShowMobileThreads] = useState(true);
   const [isRealtime, setIsRealtime] = useState(true);
+  const [selectedFiles, setSelectedFiles] = useState<MessageAttachment[]>([]);
+  const [showFileUpload, setShowFileUpload] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const messageIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom (only if user is near bottom)
+  const scrollToBottom = (force = false) => {
+    if (!messagesEndRef.current) return;
+
+    if (force) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // Check if user is near bottom (within 100px)
+      const container = messagesEndRef.current.parentElement;
+      if (container) {
+        const isNearBottom =
+          container.scrollHeight -
+            container.scrollTop -
+            container.clientHeight <
+          100;
+        if (isNearBottom) {
+          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    }
+  };
 
   // Fetch message threads
   const fetchThreads = useCallback(async () => {
@@ -93,7 +126,12 @@ export default function MessagesPage() {
 
   // Send message
   const sendMessage = async () => {
-    if (!messageInput.trim() || !selectedThread || sendingMessage) return;
+    if (
+      (!messageInput.trim() && !selectedFiles.length) ||
+      !selectedThread ||
+      sendingMessage
+    )
+      return;
 
     setSendingMessage(true);
     try {
@@ -102,24 +140,44 @@ export default function MessagesPage() {
         "Content-Type": "application/json",
       };
 
+      const attachmentUrls = selectedFiles.map((file) => file.url);
+      const messageData = {
+        content: messageInput.trim(),
+        attachments: attachmentUrls,
+        messageType: selectedFiles.length > 0 ? "mixed" : "text",
+      };
+
       const response = await fetch(`/api/messages/${selectedThread.id}`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ content: messageInput.trim() }),
+        body: JSON.stringify(messageData),
       });
 
       if (response.ok) {
         const newMessage = await response.json();
         setMessages((prev) => [...prev, newMessage]);
         setMessageInput("");
+        setSelectedFiles([]);
+        setShowFileUpload(false);
+
+        // Force scroll to bottom after sending message
+        setTimeout(() => scrollToBottom(true), 100);
 
         // Update thread in the list
+        const lastMessage =
+          messageInput.trim() ||
+          (selectedFiles.length > 0
+            ? `📎 ${selectedFiles.length} attachment${
+                selectedFiles.length > 1 ? "s" : ""
+              }`
+            : "");
+
         setThreads((prev) =>
           prev.map((thread) =>
             thread.id === selectedThread.id
               ? {
                   ...thread,
-                  lastMessage: messageInput.trim(),
+                  lastMessage,
                   lastMessageAt: new Date().toISOString(),
                 }
               : thread
@@ -151,6 +209,19 @@ export default function MessagesPage() {
     const searchText = `${otherUser?.name || ""} ${jobTitle}`.toLowerCase();
     return searchText.includes(searchQuery.toLowerCase());
   });
+
+  // Auto-scroll when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Auto-scroll when thread is selected (force scroll)
+  useEffect(() => {
+    if (selectedThread) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => scrollToBottom(true), 100);
+    }
+  }, [selectedThread]);
 
   // Real-time polling for threads
   useEffect(() => {
@@ -223,7 +294,6 @@ export default function MessagesPage() {
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-semibold text-gray-900">Messages</h1>
             <div className="flex items-center gap-2">
-              
               <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                 {stats.unreadCount} unread
               </span>
@@ -409,7 +479,18 @@ export default function MessagesPage() {
                         }
                       `}
                       >
-                        <p className="text-sm">{message.content}</p>
+                        {message.content && (
+                          <p className="text-sm">{message.content}</p>
+                        )}
+
+                        {message.attachments &&
+                          message.attachments.length > 0 && (
+                            <MessageAttachmentView
+                              attachments={message.attachments}
+                              messageType={message.messageType}
+                            />
+                          )}
+
                         <div
                           className={`
                           flex items-center justify-end gap-1 mt-1
@@ -432,11 +513,57 @@ export default function MessagesPage() {
                   );
                 })
               )}
+
+              {/* Invisible div for auto-scrolling */}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Message Input */}
             <div className="p-4 border-t border-gray-200 bg-white">
-              <div className="flex items-end gap-3">
+              {/* File Upload Section */}
+              {showFileUpload && (
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <FileUpload onFilesSelected={setSelectedFiles} maxFiles={5} />
+                </div>
+              )}
+
+              {/* Selected Files Preview */}
+              {selectedFiles.length > 0 && (
+                <div className="mb-3 p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-blue-900">
+                      {selectedFiles.length} file
+                      {selectedFiles.length > 1 ? "s" : ""} selected
+                    </span>
+                    <button
+                      onClick={() => setSelectedFiles([])}
+                      className="text-xs text-blue-600 hover:text-blue-800"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    {selectedFiles.map((file, index) => (
+                      <div
+                        key={index}
+                        className="text-xs text-blue-700 truncate"
+                      >
+                        📎 {file.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-end gap-2">
+                <button
+                  onClick={() => setShowFileUpload(!showFileUpload)}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Attach files"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
+
                 <div className="flex-1">
                   <textarea
                     value={messageInput}
@@ -453,10 +580,14 @@ export default function MessagesPage() {
                     style={{ minHeight: "40px", maxHeight: "120px" }}
                   />
                 </div>
+
                 <button
                   onClick={sendMessage}
-                  disabled={!messageInput.trim() || sendingMessage}
-                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  disabled={
+                    (!messageInput.trim() && !selectedFiles.length) ||
+                    sendingMessage
+                  }
+                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors m-auto"
                 >
                   <Send className="w-5 h-5" />
                 </button>

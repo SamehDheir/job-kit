@@ -33,6 +33,8 @@ export interface Message {
   senderId: string;
   receiverId: string;
   content: string;
+  attachments?: string[];
+  messageType?: 'text' | 'image' | 'document' | 'mixed';
   isRead: boolean;
   createdAt: string;
   
@@ -47,6 +49,14 @@ export interface Message {
     name: string;
     avatarUrl?: string;
   };
+}
+
+export interface MessageAttachment {
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  public_id?: string;
 }
 
 export interface CreateMessageRequest {
