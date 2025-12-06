@@ -6,6 +6,7 @@ import Button from "../ui/Button";
 import Link from "next/link";
 import { User, Building, LogOut, MessageCircle } from "lucide-react";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import ThemeToggle from "../shared/ThemeToggle";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +32,8 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
+
+          <ThemeToggle />
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3">
               <div className="bg-gradient-to-r from-orange-500 to-red-500 w-10 h-10 rounded-lg flex justify-center items-center text-white font-bold text-xl shadow-lg">
