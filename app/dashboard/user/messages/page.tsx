@@ -12,6 +12,7 @@ import {
 import toast from "react-hot-toast";
 import FileUpload from "@/components/ui/FileUpload";
 import MessageAttachmentView from "@/components/ui/MessageAttachmentView";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import {
   MessageCircle,
   Send,
@@ -25,6 +26,7 @@ import {
 
 export default function UserMessagesPage() {
   const { user } = useAuth();
+  const { fetchUnreadCount } = useUnreadMessages();
   const [threads, setThreads] = useState<MessageThread[]>([]);
   const [selectedThread, setSelectedThread] = useState<MessageThread | null>(
     null
@@ -175,6 +177,8 @@ export default function UserMessagesPage() {
     setSelectedThread(thread);
     setShowMobileThreads(false);
     fetchMessages(thread.id);
+    // Refresh unread count after opening a thread
+    setTimeout(() => fetchUnreadCount(), 500);
   };
 
   // Filter threads based on search
@@ -201,9 +205,13 @@ export default function UserMessagesPage() {
   useEffect(() => {
     if (user) {
       setLoading(true);
-      fetchThreads().finally(() => setLoading(false));
+      fetchThreads().finally(() => {
+        setLoading(false);
+        // Refresh unread count when messages page loads
+        fetchUnreadCount();
+      });
     }
-  }, [user]);
+  }, [user, fetchThreads, fetchUnreadCount]);
 
   if (loading) {
     return (

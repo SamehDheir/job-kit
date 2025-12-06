@@ -3,17 +3,23 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { createApiHeadersWithoutContentType } from "@/lib/api-utils";
 import {
   MapPin,
   Briefcase,
   DollarSign,
   Clock,
-  Zap,
+  Calendar,
   ArrowLeft,
   Share2,
   Bookmark,
   CheckCircle,
   AlertCircle,
+  Building,
+  User,
+  LogIn,
+  Zap,
 } from "lucide-react";
 import { Job } from "@/types/job.types";
 
@@ -28,10 +34,12 @@ interface JobWithCompany extends Job {
 }
 
 interface JobDetailsPageProps {
-  id: string;
+  params: Promise<{ id: string }>;
 }
 
-export default function JobDetailsPage({ id }: JobDetailsPageProps) {
+export default function JobDetailsPage({ params }: JobDetailsPageProps) {
+  const { id } = React.use(params);
+  const { user, isAuthenticated } = useAuth();
   const [job, setJob] = useState<JobWithCompany | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,12 +50,13 @@ export default function JobDetailsPage({ id }: JobDetailsPageProps) {
     const fetchJobDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/jobs?id=${id}`);
+        const headers = user ? createApiHeadersWithoutContentType(user) : {};
+        const response = await fetch(`/api/jobs/${id}`, { headers });
         if (!response.ok) {
           throw new Error("Failed to load job details");
         }
         const data = await response.json();
-        setJob(data.jobs?.[0] || null);
+        setJob(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
@@ -56,14 +65,34 @@ export default function JobDetailsPage({ id }: JobDetailsPageProps) {
     };
 
     fetchJobDetails();
-  }, [id]);
+  }, [id, user]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading job details...</p>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+        <div className="max-w-5xl mx-auto px-4 py-16">
+          <div className="text-center mb-8">
+            <div className="relative mb-8">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-200 border-t-orange-600 mx-auto"></div>
+              <Briefcase className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-orange-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Loading Job Details...
+            </h3>
+            <p className="text-gray-600">
+              Please wait while we fetch the information
+            </p>
+          </div>
+
+          {/* Loading Skeleton */}
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden animate-pulse">
+            <div className="bg-gray-200 h-48 w-full"></div>
+            <div className="p-8 space-y-4">
+              <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -71,20 +100,31 @@ export default function JobDetailsPage({ id }: JobDetailsPageProps) {
 
   if (error || !job) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+        <div className="max-w-5xl mx-auto px-4 py-12">
           <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary-dark mb-8"
+            href="/jobs"
+            className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 mb-8 font-semibold transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to jobs
           </Link>
-          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-            <p className="text-red-800 font-semibold text-lg">
+          <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
+            <div className="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="w-12 h-12 text-red-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              Oops! Something went wrong
+            </h2>
+            <p className="text-red-700 text-lg mb-6">
               {error || "Job not found"}
             </p>
+            <Link
+              href="/jobs"
+              className="inline-block px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all font-semibold shadow-md hover:shadow-lg"
+            >
+              Browse All Jobs
+            </Link>
           </div>
         </div>
       </div>
@@ -112,25 +152,30 @@ export default function JobDetailsPage({ id }: JobDetailsPageProps) {
     new Date(job.deadline) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 py-12">
+      <div className="max-w-5xl mx-auto px-4">
         {/* Header Navigation */}
         <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-primary hover:text-primary-dark mb-8 font-semibold"
+          href="/jobs"
+          className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 mb-8 font-semibold transition-colors transform hover:scale-105"
         >
           <ArrowLeft className="w-5 h-5" />
-          Back to jobs
+          Back to All Jobs
         </Link>
 
         {/* Main Content Card */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
           {/* Hero Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 p-8 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
             <div className="flex justify-between items-start mb-6">
-              <div className="flex-1">
-                <h1 className="text-4xl font-bold mb-3">{job.title}</h1>
-                <p className="text-lg text-blue-100 font-semibold">
+              <div className="flex-1 relative z-10">
+                <h1 className="text-4xl md:text-5xl font-bold mb-3 drop-shadow-md">
+                  {job.title}
+                </h1>
+                <p className="text-xl text-white font-semibold flex items-center gap-2">
+                  <Building className="w-5 h-5" />
                   {job.company?.companyName || "Company Name"}
                 </p>
               </div>
@@ -150,38 +195,32 @@ export default function JobDetailsPage({ id }: JobDetailsPageProps) {
             </div>
 
             {/* Quick Info */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white bg-opacity-10 rounded-lg p-3">
-                <p className="text-black text-xs font-medium opacity-80">
-                  Posted On
-                </p>
-                <p className="font-bold text-black text-base mt-1">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition-all">
+                <p className="text-black text-xs font-medium mb-1">Posted On</p>
+                <p className="font-bold text-black text-sm">
                   {formatDate(job.createdAt)}
                 </p>
               </div>
-              <div className="bg-white bg-opacity-10 rounded-lg p-3">
-                <p className="text-black text-xs font-medium opacity-80">
-                  Location
-                </p>
-                <p className="font-bold text-black text-base flex items-center gap-1 mt-1">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition-all">
+                <p className="text-black text-xs font-medium mb-1">Location</p>
+                <p className="font-bold text-black text-sm flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
                   {job.location}
                 </p>
               </div>
-              <div className="bg-white bg-opacity-10 rounded-lg p-3">
-                <p className="text-black text-xs font-medium opacity-80">
-                  Job Type
-                </p>
-                <p className="font-bold text-black text-base flex items-center gap-1 mt-1">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition-all">
+                <p className="text-black text-xs font-medium mb-1">Job Type</p>
+                <p className="font-bold text-black text-sm flex items-center gap-1">
                   <Briefcase className="w-4 h-4" />
                   {job.workType}
                 </p>
               </div>
-              <div className="bg-white bg-opacity-10 rounded-lg p-3">
-                <p className="text-black text-xs font-medium opacity-80">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition-all">
+                <p className="text-black text-xs font-medium mb-1">
                   Experience
                 </p>
-                <p className="font-bold text-black text-base mt-1">
+                <p className="font-bold text-black text-sm">
                   {job.experienceLevel}
                 </p>
               </div>
@@ -257,14 +296,17 @@ export default function JobDetailsPage({ id }: JobDetailsPageProps) {
             {/* Requirements */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <CheckCircle className="w-6 h-6 text-blue-600" />
+                <CheckCircle className="w-6 h-6 text-orange-600" />
                 Requirements
               </h2>
               <ul className="space-y-3">
                 {job.requirements && job.requirements.length > 0 ? (
                   job.requirements.map((req, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <span className="text-blue-600 font-bold mt-1">✓</span>
+                    <li
+                      key={idx}
+                      className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
+                    >
+                      <span className="text-orange-600 font-bold mt-1">✓</span>
                       <span className="text-gray-700">{req}</span>
                     </li>
                   ))
@@ -287,7 +329,7 @@ export default function JobDetailsPage({ id }: JobDetailsPageProps) {
                   job.skills.map((skill, idx) => (
                     <span
                       key={idx}
-                      className="px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full font-semibold hover:shadow-md transition-shadow"
+                      className="px-4 py-2 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 rounded-full font-semibold hover:shadow-md transition-all hover:scale-105 cursor-pointer"
                     >
                       {skill}
                     </span>
@@ -356,21 +398,39 @@ export default function JobDetailsPage({ id }: JobDetailsPageProps) {
             )}
 
             {/* CTA Buttons */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {isAuthenticated ? (
+                user?.userType === "USER" ? (
+                  <Link
+                    href={`/apply/${id}`}
+                    className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all inline-flex items-center justify-center transform hover:scale-105 ${
+                      applied
+                        ? "bg-green-600 hover:bg-green-700 text-white shadow-lg"
+                        : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-xl hover:shadow-2xl"
+                    }`}
+                  >
+                    {applied ? "✓ Application Submitted" : "Apply Now"}
+                  </Link>
+                ) : (
+                  <div className="flex-1 py-4 px-6 rounded-xl font-bold text-lg bg-gray-100 text-gray-500 inline-flex items-center justify-center">
+                    <Building className="w-5 h-5 mr-2" />
+                    Companies cannot apply
+                  </div>
+                )
+              ) : (
+                <Link
+                  href={`/login?returnUrl=${encodeURIComponent(
+                    `/apply/${id}`
+                  )}`}
+                  className="flex-1 py-4 px-6 rounded-xl font-bold text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-xl hover:shadow-2xl inline-flex items-center justify-center transform hover:scale-105 transition-all"
+                >
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Login to Apply
+                </Link>
+              )}
               <Link
-                href={`/apply/${params.id}`}
-                className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all inline-flex items-center justify-center ${
-                  applied
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl"
-                }`}
-                onClick={() => setApplied(false)}
-              >
-                {applied ? "✓ Application Submitted" : "Apply Now"}
-              </Link>
-              <Link
-                href="/"
-                className="py-4 px-6 rounded-xl font-bold text-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all"
+                href="/jobs"
+                className="py-4 px-6 rounded-xl font-bold text-lg border-2 border-orange-300 text-orange-600 hover:bg-orange-50 transition-all transform hover:scale-105"
               >
                 View Other Jobs
               </Link>

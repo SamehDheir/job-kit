@@ -11,12 +11,19 @@ import {
   User,
 } from "lucide-react";
 import { useResume } from "@/contexts/ResumeContext";
-import { ApplicationCard } from '@/components/ApplicationCard';
-import Link from 'next/link';
+import { ApplicationCard } from "@/components/ApplicationCard";
+import Link from "next/link";
 
 interface JobApplication {
   id: string;
-  status: 'PENDING' | 'REVIEWED' | 'SHORTLISTED' | 'INTERVIEWING' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN';
+  status:
+    | "PENDING"
+    | "REVIEWED"
+    | "SHORTLISTED"
+    | "INTERVIEWING"
+    | "ACCEPTED"
+    | "REJECTED"
+    | "WITHDRAWN";
   createdAt: string;
   job: {
     title: string;
@@ -36,18 +43,17 @@ export default function UserDashboard() {
 
   useEffect(() => {
     loadResume();
-    
+
     // Fetch 3 recent applications
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
-    
-    if (user?.email) {
-      fetch('/api/job-applications', {
-        headers: {
-          'x-user-email': user.email
-        }
+
+    if (user?.id) {
+      const headers = { "x-user-id": user.id };
+      fetch("/api/job-applications", {
+        headers,
       })
-        .then(r => r.json())
+        .then((r) => r.json())
         .then((data: JobApplication[]) => {
           setApplications(Array.isArray(data) ? data.slice(0, 5) : []);
         });
@@ -120,7 +126,9 @@ export default function UserDashboard() {
                 {applications.length}
               </span>
             </div>
-            <h3 className="mb-1 font-semibold text-gray-900">My Applications</h3>
+            <h3 className="mb-1 font-semibold text-gray-900">
+              My Applications
+            </h3>
             <p className="text-gray-500 text-sm">{"Jobs you've applied to"}</p>
           </div>
 
@@ -149,9 +157,7 @@ export default function UserDashboard() {
           <div className="flex justify-between items-center p-6 border-gray-200 border-b">
             <div className="flex items-center gap-3">
               <FileText className="w-5 h-5 text-gray-700" />
-              <h2 className="font-semibold text-gray-900 text-lg">
-              My Resume
-              </h2>
+              <h2 className="font-semibold text-gray-900 text-lg">My Resume</h2>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -244,7 +250,7 @@ export default function UserDashboard() {
                 ].map((stat, i) => (
                   <div
                     key={i}
-                    className="hover:shadow-md p-4 border border-gray-200 rounded-lg text-center transition"      
+                    className="hover:shadow-md p-4 border border-gray-200 rounded-lg text-center transition"
                   >
                     <p className="mb-1 font-bold text-gray-900 text-3xl">
                       {stat.value}
@@ -284,7 +290,7 @@ export default function UserDashboard() {
             </div>
             <Link
               href="/dashboard/user/applications"
-              className="inline-flex items-center gap-1 font-medium text-gray-600 hover:text-gray-900 text-sm"   
+              className="inline-flex items-center gap-1 font-medium text-gray-600 hover:text-gray-900 text-sm"
             >
               View All <ArrowRight className="w-3 h-3" />
             </Link>
@@ -308,7 +314,10 @@ export default function UserDashboard() {
               <div className="py-8 text-center">
                 <FileText className="mx-auto mb-3 w-10 h-10 text-gray-400" />
                 <p className="text-gray-500">No applications yet</p>
-                <Link href="/jobs" className="inline-flex items-center gap-2 bg-blue-600 mt-4 px-4 py-2 rounded-lg font-medium text-white text-sm">
+                <Link
+                  href="/jobs"
+                  className="inline-flex items-center gap-2 bg-blue-600 mt-4 px-4 py-2 rounded-lg font-medium text-white text-sm"
+                >
                   Browse Jobs
                 </Link>
               </div>

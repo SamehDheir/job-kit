@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Avatar from "@/components/ui/Avatar";
 import CompanyIdChecker from "@/components/auth/CompanyIdChecker";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import {
   Briefcase,
   Plus,
@@ -34,6 +35,7 @@ export default function DashboardLayout({
   const [profileDropdown, setProfileDropdown] = useState(false);
   const pathname = usePathname();
   const { user, logout, isLoading } = useAuth();
+  const { unreadCount } = useUnreadMessages();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -52,7 +54,10 @@ export default function DashboardLayout({
 
   // Get navigation items based on user type
   const navigation = useMemo(() => {
-    const baseNav = [{ name: "Dashboard", href: "/dashboard", icon: Home }];
+    const baseNav = [
+      { name: "Home Page", href: "/", icon: Home },
+      { name: "Browse Jobs", href: "/jobs", icon: Briefcase },
+    ];
 
     if (!user) return baseNav;
 
@@ -134,10 +139,12 @@ export default function DashboardLayout({
   }, [user]);
 
   const isActive = (href: string) => {
-    if (href === "/dashboard") {
+    // Exact match for home page and dashboard
+    if (href === "/" || href === "/dashboard") {
       return pathname === href;
     }
-    return pathname.startsWith(href);
+    // For other paths, check if current path starts with the href
+    return pathname?.startsWith(href) || false;
   };
 
   return (
@@ -189,13 +196,15 @@ export default function DashboardLayout({
                         {section.items.map((item) => {
                           const Icon = item.icon;
                           const active = isActive(item.href);
+                          const isMessagesLink =
+                            item.href.includes("/messages");
 
                           return (
                             <li key={item.name}>
                               <Link
                                 href={item.href}
                                 className={`
-                                flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200
+                                flex items-center justify-between px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200
                                 ${
                                   active
                                     ? "bg-primary text-white shadow-md"
@@ -204,12 +213,19 @@ export default function DashboardLayout({
                               `}
                                 onClick={() => setSidebarOpen(false)}
                               >
-                                <Icon
-                                  className={`h-4 w-4 mr-3 ${
-                                    active ? "text-white" : "text-gray-500"
-                                  }`}
-                                />
-                                {item.name}
+                                <div className="flex items-center">
+                                  <Icon
+                                    className={`h-4 w-4 mr-3 ${
+                                      active ? "text-white" : "text-gray-500"
+                                    }`}
+                                  />
+                                  {item.name}
+                                </div>
+                                {isMessagesLink && unreadCount > 0 && (
+                                  <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg animate-pulse">
+                                    {unreadCount > 9 ? "9+" : unreadCount}
+                                  </span>
+                                )}
                               </Link>
                             </li>
                           );
@@ -223,7 +239,7 @@ export default function DashboardLayout({
                   const active = isActive(section.href);
 
                   return (
-                    <li key={section.name}>
+                    <li key={section.name} className="m-0">
                       <Link
                         href={section.href}
                         className={`

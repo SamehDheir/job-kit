@@ -3,14 +3,14 @@ import React from "react";
 
 const Services = () => {
   return (
-    <section className="flex flex-col-reverse md:flex-row items-center justify-between gap-10  py-16">
+    <section className="flex flex-col-reverse md:flex-row items-center justify-between gap-10 py-16 bg-gradient-to-r from-orange-50/50 to-red-50/50">
       {/* Left Section - Text */}
       <div className="w-full md:w-1/2 text-center md:text-left space-y-6">
-        <h3 className="text-primary text-lg font-semibold uppercase tracking-wide">
-          Our Services
+        <h3 className="text-orange-600 text-lg font-semibold uppercase tracking-wide">
+          Professional Templates
         </h3>
-        <h2 className="text-3xl md:text-5xl font-bold leading-tight">
-          You can always pick any template you like
+        <h2 className="text-3xl md:text-5xl font-bold leading-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+          Choose from 25+ ATS-friendly resume templates
         </h2>
         <p className="text-gray-600 leading-relaxed text-base md:text-lg">
           Choose from one of our expertly prepared resume types below. By using
