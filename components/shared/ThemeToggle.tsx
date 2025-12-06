@@ -1,5 +1,3 @@
-// ThemeToggle.tsx (لم يتغير)
-
 "use client";
 import { useTheme } from "@/contexts/ThemeContext";
 

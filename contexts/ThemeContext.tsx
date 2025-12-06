@@ -1,71 +1,73 @@
-// ThemeContext.tsx
-
 "use client";
+
 import { createContext, useContext, useState, ReactNode, useLayoutEffect } from "react";
 
 type Theme = "light" | "dark";
 
 interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
+    theme: Theme;
+    toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// 💡 دالة مساعدة لتطبيق الـ Class على عنصر HTML
-const applyTheme = (newTheme: Theme) => {
-  document.documentElement.classList.toggle("dark", newTheme === "dark");
+const applyTheme = (theme: Theme) => {
+    if (typeof document !== "undefined") {
+        // **التعديل الهام:** تطبيق الفئة 'dark' على وسم <html>
+        document.documentElement.classList.toggle("dark", theme === "dark");
+        // التأكد من إزالة الفئة من body إذا كانت مطبقة بالخطأ
+        document.body.classList.remove("dark");
+    }
+};
+
+const getCookie = (name: string) => {
+    const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    return match ? match[2] : null;
+};
+
+const setCookie = (name: string, value: string, days = 365) => {
+    const expires = new Date(Date.now() + days * 86400000).toUTCString();
+    document.cookie = `${name}=${value}; expires=${expires}; path=/`;
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  // ⚠️ التغيير هنا: نبدأ بقيمة null لمنع الوميض الأولي الخاطئ.
-  // سيتم تعيين القيمة الصحيحة في useLayoutEffect
-  const [theme, setTheme] = useState<Theme | null>(null);
+    const [theme, setTheme] = useState<Theme>("light");
 
-  // useLayoutEffect عشان يتنفذ قبل paint
-  useLayoutEffect(() => {
-    // قراءة الثيم المخزن أو المفضل
-    const storedTheme = localStorage.getItem("theme") as Theme;
-    const initialTheme: Theme =
-      storedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
-    setTheme(initialTheme);
-    applyTheme(initialTheme);
-  }, []);
+    useLayoutEffect(() => {
+        const storedTheme = getCookie("theme") as Theme | null;
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        const initialTheme = storedTheme || systemTheme;
 
-  const toggleTheme = () => {
-    // نتأكد من أن الثيم الحالي ليس null قبل التبديل
-    if (theme === null) return; 
+        setTheme(initialTheme);
+        applyTheme(initialTheme);
+    }, []);
 
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    applyTheme(newTheme);
-  };
-  
-  // ⛔️ نقطة مهمة: نستخدم القيمة الافتراضية "light" إذا كان الثيم لا يزال null
-  // (أثناء الـ Server Rendering) أو نستخدم القيمة المحدثة.
-  // يجب أن تكون القيمة من نوع ThemeContextType
-  if (theme === null) {
+
+    const toggleTheme = () => {
+        setTheme((prev) => {
+            const newTheme = prev === "light" ? "dark" : "light";
+            applyTheme(newTheme);
+            setCookie("theme", newTheme);
+            return newTheme;
+        });
+    };
+
     return (
-        <ThemeContext.Provider value={{ theme: "light", toggleTheme }}>
+        <ThemeContext.Provider value={{ theme, toggleTheme }}>
             {children}
         </ThemeContext.Provider>
     );
-  }
-
-
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-        {children}
-    </ThemeContext.Provider>
-  );
 };
 
-// ... useTheme remains the same
-
 export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) throw new Error("useTheme must be used within ThemeProvider");
-  return context;
+    const context = useContext(ThemeContext);
+    if (!context) throw new Error("useTheme must be used within ThemeProvider");
+    return context;
+};
+
+export const ThemeClientWrapper = ({ children }: { children: ReactNode }) => {
+    return <ThemeProvider>{children}</ThemeProvider>;
 };
