@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { notificationService } from "@/lib/notifications";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -130,10 +131,33 @@ export async function PATCH(request: NextRequest, { params }: Params) {
             id: true,
             title: true,
             location: true,
+            company: {
+              select: {
+                companyName: true
+              }
+            }
           },
         },
+        user: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
       },
     });
+
+    // Send notification to applicant about status change
+    if (status && updatedApplication.user?.id) {
+      await notificationService.notifyApplicationStatusChange({
+        applicantUserId: updatedApplication.user.id,
+        status: status,
+        jobTitle: updatedApplication.job.title,
+        companyName: updatedApplication.job.company?.companyName || "Company",
+        jobId: updatedApplication.job.id,
+        applicationId: applicationId
+      });
+    }
 
     return NextResponse.json({
       message: "Application updated successfully",

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { notificationService } from "@/lib/notifications";
 
 // POST /api/interviews/[id]/cancel - Cancel interview
 export async function POST(
@@ -90,6 +91,22 @@ export async function POST(
           },
         },
       },
+    });
+
+    // Send notification to the other party
+    const recipientUserId = user.userType === "COMPANY" 
+      ? interview.candidateId 
+      : interview.companyId;
+    
+    await notificationService.notifyInterviewCancelled({
+      recipientUserId,
+      jobTitle: updatedInterview.job.title,
+      scheduledAt: interview.scheduledAt,
+      interviewId: interview.id,
+      applicationId: interview.applicationId,
+      jobId: interview.jobId,
+      reason,
+      isCandidate: user.userType !== "COMPANY"
     });
 
     return NextResponse.json({ interview: updatedInterview });

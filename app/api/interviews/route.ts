@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { notificationService } from "@/lib/notifications";
 
 // GET /api/interviews - Get all interviews for the current user
 export async function GET(req: NextRequest) {
@@ -216,6 +217,20 @@ export async function POST(req: NextRequest) {
     await prisma.jobApplication.update({
       where: { id: applicationId },
       data: { status: "INTERVIEWING" },
+    });
+
+    // Send notification to candidate about interview
+    await notificationService.notifyInterviewScheduled({
+      candidateUserId: application.userId,
+      jobTitle: interview.job.title,
+      companyName: interview.job.company?.companyName || "Company",
+      scheduledAt: new Date(scheduledAt),
+      interviewType: interviewType,
+      interviewId: interview.id,
+      applicationId: applicationId,
+      jobId: application.jobId,
+      meetingLink: meetingLink,
+      location: location,
     });
 
     return NextResponse.json({ interview }, { status: 201 });

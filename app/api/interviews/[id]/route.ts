@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { notificationService } from "@/lib/notifications";
 
 // GET /api/interviews/[id] - Get interview details
 export async function GET(
@@ -215,6 +216,13 @@ export async function DELETE(
     const { id } = await params;
     const interview = await prisma.interview.findUnique({
       where: { id },
+      include: {
+        job: {
+          select: {
+            title: true
+          }
+        }
+      }
     });
 
     if (!interview) {
@@ -231,6 +239,17 @@ export async function DELETE(
         { status: 403 }
       );
     }
+
+    // Send notification to candidate before deleting
+    await notificationService.notifyInterviewCancelled({
+      recipientUserId: interview.candidateId,
+      jobTitle: interview.job.title,
+      scheduledAt: interview.scheduledAt,
+      interviewId: interview.id,
+      applicationId: interview.applicationId,
+      jobId: interview.jobId,
+      isCandidate: true
+    });
 
     await prisma.interview.delete({
       where: { id },
