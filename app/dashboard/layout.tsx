@@ -9,6 +9,7 @@ import CompanyIdChecker from "@/components/auth/CompanyIdChecker";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import {
+  Award,
   Briefcase,
   Plus,
   FileText,
@@ -112,6 +113,11 @@ export default function DashboardLayout({
               href: "/dashboard/user/resume-builder",
               icon: FileText,
             },
+            {
+      name: "Certificates", 
+      href: "/dashboard/user/certificates",
+      icon: Award,
+    },
             {
               name: "Generate Cover Letter ",
               href: "/dashboard/user/cover-letter",
@@ -222,7 +228,7 @@ export default function DashboardLayout({
                                   {item.name}
                                 </div>
                                 {isMessagesLink && unreadCount > 0 && (
-                                  <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg animate-pulse">
+                                  <span className="flex justify-center items-center bg-gradient-to-r from-red-500 to-red-600 shadow-lg rounded-full w-5 h-5 font-bold text-white text-xs animate-pulse">
                                     {unreadCount > 9 ? "9+" : unreadCount}
                                   </span>
                                 )}
@@ -388,9 +394,9 @@ export default function DashboardLayout({
                         <Link href="/dashboard/profile">
                           <button
                             onClick={() => setProfileDropdown(!profileDropdown)}
-                            className="w-full block px-4 py-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 flex items-center space-x-2"
+                            className="block flex items-center space-x-2 hover:bg-gray-100 px-4 py-2 w-full text-gray-700 text-sm cursor-pointer"
                           >
-                            <User className="h-4 w-4" />
+                            <User className="w-4 h-4" />
                             <span>Profile</span>
                           </button>
                         </Link>
@@ -415,7 +421,7 @@ export default function DashboardLayout({
 
           {/* Page content */}
           <main className="p-4 sm:p-6">
-            <div className="max-w-7xl mx-auto">
+            <div className="mx-auto max-w-7xl">
               <CompanyIdChecker>
                 <ResumeProvider>{children}</ResumeProvider>
               </CompanyIdChecker>
