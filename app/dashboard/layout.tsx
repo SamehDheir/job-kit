@@ -28,6 +28,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { ResumeProvider } from "@/contexts/ResumeContext";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export default function DashboardLayout({
   children,
@@ -114,6 +115,11 @@ export default function DashboardLayout({
               name: "User Dashboard",
               href: "/dashboard/user",
               icon: UserCheck,
+            },
+            {
+              name: "Saved Jobs",
+              href: "/dashboard/saved-jobs",
+              icon: FileText,
             },
             {
               name: "Resume Builder",
@@ -431,6 +437,7 @@ export default function DashboardLayout({
             {/* Page content */}
             <main className="p-4 sm:p-6">
               <div className="max-w-7xl mx-auto">
+                <Breadcrumb />
                 <CompanyIdChecker>
                   <ResumeProvider>{children}</ResumeProvider>
                 </CompanyIdChecker>

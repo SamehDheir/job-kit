@@ -3,8 +3,9 @@
 import { Job } from "@/types/job.types";
 import Link from "next/link";
 import Image from "next/image";
-import React from "react";
-import { MapPin, Briefcase, DollarSign, Calendar } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { MapPin, Briefcase, DollarSign, Calendar, Heart } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface JobCardProps {
   job: Job & {
@@ -17,6 +18,61 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
+  const { user } = useAuth();
+  const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      checkIfSaved();
+    }
+  }, [job.id, user?.id]);
+
+  const checkIfSaved = async () => {
+    if (!user?.id) return;
+    try {
+      const res = await fetch(`/api/saved-jobs?jobId=${job.id}`, {
+        headers: {
+          "x-user-id": user.id,
+        },
+      });
+      const data = await res.json();
+      setIsSaved(data.jobs.some((savedJob: any) => savedJob.jobId === job.id));
+    } catch (error) {
+      console.error("Error checking saved status:", error);
+    }
+  };
+
+  const handleSaveJob = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!user?.id) return;
+    setIsLoading(true);
+    try {
+      if (isSaved) {
+        await fetch(`/api/saved-jobs?jobId=${job.id}`, {
+          method: "DELETE",
+          headers: {
+            "x-user-id": user.id,
+          },
+        });
+      } else {
+        await fetch("/api/saved-jobs", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": user.id,
+          },
+          body: JSON.stringify({ jobId: job.id }),
+        });
+      }
+      setIsSaved(!isSaved);
+    } catch (error) {
+      console.error("Error saving job:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const formatDate = (date: Date | string) => {
     const d = new Date(date);
     return d.toLocaleDateString("en-US", {
@@ -118,12 +174,26 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             <Calendar className="w-4 h-4" />
             <span>{formatDate(job.createdAt)}</span>
           </div>
-          <Link
-            href={`/jobs/${job.id}`}
-            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all transform group-hover:scale-105 font-semibold text-sm shadow-md hover:shadow-lg hover:shadow-orange-200"
-          >
-            View →
-          </Link>
+          <div className="flex gap-2">
+            <button
+              onClick={handleSaveJob}
+              disabled={isLoading || !user?.id}
+              className={`px-3 py-2 rounded-lg transition-all transform hover:scale-105 font-semibold text-sm shadow-md hover:shadow-lg flex items-center gap-2 ${
+                isSaved
+                  ? "bg-red-500 text-white hover:bg-red-600"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
+              {isSaved ? "Saved" : "Save"}
+            </button>
+            <Link
+              href={`/jobs/${job.id}`}
+              className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 font-semibold text-sm shadow-md hover:shadow-lg hover:shadow-orange-200"
+            >
+              View →
+            </Link>
+          </div>
         </div>
       </div>
     </div>

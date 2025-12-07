@@ -4,7 +4,7 @@ import { HiMenu, HiX } from "react-icons/hi";
 import { useAuth } from "@/contexts/AuthContext";
 import Button from "../ui/Button";
 import Link from "next/link";
-import { User, Building, LogOut, MessageCircle } from "lucide-react";
+import { User, Building, LogOut, MessageCircle, Search } from "lucide-react";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
 const Header = () => {
@@ -47,6 +47,14 @@ const Header = () => {
               className="text-gray-600 hover:text-text-primary font-medium transition-colors duration-200 relative group"
             >
               Browse Jobs
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-text-primary transition-all duration-200 group-hover:w-full"></span>
+            </Link>
+            <Link
+              href="/jobs/search"
+              className="flex items-center gap-2 text-gray-600 hover:text-text-primary font-medium transition-colors duration-200 relative group"
+            >
+              <Search className="w-5 h-5" />
+              Advanced Search
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-text-primary transition-all duration-200 group-hover:w-full"></span>
             </Link>
             {isAuthenticated && (
@@ -145,6 +153,14 @@ const Header = () => {
                 onClick={() => setIsOpen(false)}
               >
                 Browse Jobs
+              </Link>
+              <Link
+                href="/jobs/search"
+                className="flex items-center gap-2 py-3 px-4 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors duration-200"
+                onClick={() => setIsOpen(false)}
+              >
+                <Search className="w-5 h-5" />
+                Advanced Search
               </Link>
               {isAuthenticated ? (
                 <>
