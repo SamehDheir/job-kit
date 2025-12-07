@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createApiHeadersWithoutContentType } from "@/lib/api-utils";
 import JobListView from "@/components/JobListView";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import {
   MapPin,
   Search,
@@ -158,6 +159,11 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Breadcrumb */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <Breadcrumb />
+      </div>
+
       {/* Header Section */}
       <div className="bg-gradient-to-br from-orange-50 via-white to-red-50 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

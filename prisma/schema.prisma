@@ -38,26 +38,34 @@ model User {
   // Notification relations
   notifications Notification[]
 
+  // Saved jobs and companies
+  savedJobs      SavedJob[]     @relation("SavedJobs")
+  savedCompanies SavedCompany[] @relation("SavedCompanies")
+
+  // Search history
+  searchHistory SearchHistory[] @relation("SearchHistory")
+
   @@map("users")
 }
 
 model Company {
-  id              String   @id @default(cuid())
-  userId          String   @unique @map("user_id")
-  companyName     String   @map("company_name")
+  id              String         @id @default(cuid())
+  userId          String         @unique @map("user_id")
+  companyName     String         @map("company_name")
   industry        String?
-  companySize     String?  @map("company_size")
+  companySize     String?        @map("company_size")
   location        String?
   website         String?
   description     String?
   logo            String?
-  contactPhone    String?  @map("contact_phone")
-  contactEmail    String?  @map("contact_email")
-  establishedYear Int?     @map("established_year")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  user            User     @relation("UserCompany", fields: [userId], references: [id], onDelete: Cascade)
-  jobs            Job[]    @relation("CompanyJobs")
+  contactPhone    String?        @map("contact_phone")
+  contactEmail    String?        @map("contact_email")
+  establishedYear Int?           @map("established_year")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  user            User           @relation("UserCompany", fields: [userId], references: [id], onDelete: Cascade)
+  jobs            Job[]          @relation("CompanyJobs")
+  savedByUsers    SavedCompany[] @relation("SavedByUsers")
 
   @@map("companies")
 }
@@ -85,6 +93,7 @@ model Job {
   applications   JobApplication[] @relation("JobApplications")
   messageThreads MessageThread[]
   interviews     Interview[]
+  savedByUsers   SavedJob[]       @relation("SavedByUsers")
 
   @@map("jobs")
 }
@@ -309,4 +318,45 @@ model Notification {
   @@index([userId, isRead])
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+model SavedJob {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  jobId     String   @map("job_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation("SavedJobs", fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation("SavedByUsers", fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId, createdAt])
+  @@map("saved_jobs")
+}
+
+model SavedCompany {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  companyId String   @map("company_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation("SavedCompanies", fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation("SavedByUsers", fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId])
+  @@index([userId, createdAt])
+  @@map("saved_companies")
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  query     String
+  filters   Json? // Save filter preferences (location, salary, type, etc.)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation("SearchHistory", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("search_history")
 }

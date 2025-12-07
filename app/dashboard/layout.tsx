@@ -29,6 +29,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { ResumeProvider } from "@/contexts/ResumeContext";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export default function DashboardLayout({
   children,
@@ -115,6 +116,11 @@ export default function DashboardLayout({
               name: "User Dashboard",
               href: "/dashboard/user",
               icon: UserCheck,
+            },
+            {
+              name: "Saved Jobs",
+              href: "/dashboard/saved-jobs",
+              icon: FileText,
             },
             {
               name: "Resume Builder",
@@ -409,7 +415,7 @@ export default function DashboardLayout({
                               onClick={() =>
                                 setProfileDropdown(!profileDropdown)
                               }
-                              className="w-full block px-4 py-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 flex items-center space-x-2"
+                              className="w-full px-4 py-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 flex items-center space-x-2"
                             >
                               <User className="h-4 w-4" />
                               <span>Profile</span>
@@ -437,6 +443,7 @@ export default function DashboardLayout({
             {/* Page content */}
             <main className="p-4 sm:p-6">
               <div className="max-w-7xl mx-auto">
+                <Breadcrumb />
                 <CompanyIdChecker>
                   <ResumeProvider>{children}</ResumeProvider>
                 </CompanyIdChecker>
