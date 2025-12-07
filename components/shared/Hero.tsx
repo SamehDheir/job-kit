@@ -9,7 +9,7 @@ const Hero = () => {
   const { theme } = useTheme(); // نحصل على الوضع الحالي
 
   return (
-    <div className="flex flex-col lg:flex-row items-center gap-12 py-12 lg:py-20 
+    <div className="flex flex-col lg:flex-row items-center gap-12 px-10 py-12 lg:py-20 
       bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 
       relative overflow-hidden min-h-[80vh] lg:min-h-[70vh]">
 

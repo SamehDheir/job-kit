@@ -3,7 +3,7 @@ import React from "react";
 
 const Services = () => {
   return (
-    <section className="flex flex-col-reverse md:flex-row items-center justify-between gap-10 py-16 bg-gradient-to-r from-orange-50/50 to-red-50/50 dark:from-gray-800/50 dark:to-gray-900/50 transition-colors duration-500">
+    <section className="flex flex-col-reverse md:flex-row items-center justify-between gap-10 py-16 px-10 bg-gradient-to-r from-orange-50/50 to-red-50/50 dark:from-gray-800/50 dark:to-gray-900/50 transition-colors duration-500">
       {/* Left Section - Text */}{" "}
       <div className="w-full md:w-1/2 text-center md:text-left space-y-6">
         {" "}

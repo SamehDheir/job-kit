@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import JobCard from "@/components/JobCard";
