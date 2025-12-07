@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { notificationService } from "@/lib/notifications";
 
 // POST /api/interviews/[id]/reschedule - Request interview reschedule
 export async function POST(
@@ -103,6 +104,23 @@ export async function POST(
           },
         },
       },
+    });
+
+    // Send notification to the other party
+    const recipientUserId = user.userType === "COMPANY" 
+      ? interview.candidateId 
+      : interview.companyId;
+    
+    await notificationService.notifyInterviewRescheduled({
+      recipientUserId,
+      jobTitle: updatedInterview.job.title,
+      newScheduledAt: scheduledAt ? new Date(scheduledAt) : interview.scheduledAt,
+      previousScheduledAt: interview.scheduledAt,
+      interviewId: interview.id,
+      applicationId: interview.applicationId,
+      jobId: interview.jobId,
+      reason,
+      isCandidate: user.userType !== "COMPANY"
     });
 
     return NextResponse.json({ interview: updatedInterview });

@@ -35,6 +35,9 @@ model User {
   candidateInterviews Interview[] @relation("CandidateInterviews")
   companyInterviews   Interview[] @relation("CompanyInterviews")
 
+  // Notification relations
+  notifications Notification[]
+
   @@map("users")
 }
 
@@ -256,4 +259,52 @@ model Interview {
   company     User           @relation("CompanyInterviews", fields: [companyId], references: [id], onDelete: Cascade)
 
   @@map("interviews")
+}
+
+enum NotificationType {
+  // Application related
+  NEW_APPLICATION // Company receives new job application
+  APPLICATION_VIEWED // Applicant notified their application was viewed
+  APPLICATION_SHORTLISTED // Applicant shortlisted
+  APPLICATION_ACCEPTED // Applicant accepted
+  APPLICATION_REJECTED // Applicant rejected
+
+  // Interview related
+  INTERVIEW_SCHEDULED // New interview scheduled
+  INTERVIEW_CONFIRMED // Interview confirmed
+  INTERVIEW_RESCHEDULED // Interview rescheduled
+  INTERVIEW_CANCELLED // Interview cancelled
+  INTERVIEW_REMINDER // Reminder before interview
+  INTERVIEW_COMPLETED // Interview completed
+  INTERVIEW_FEEDBACK // Feedback received
+
+  // Message related
+  NEW_MESSAGE // New message received
+
+  // Job related
+  NEW_JOB_MATCH // Job matches user profile
+  JOB_DEADLINE_REMINDER // Job application deadline approaching
+
+  // System
+  SYSTEM_ANNOUNCEMENT // System-wide announcement
+  ACCOUNT_UPDATE // Account related updates
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String
+  data      Json? // Additional data (jobId, applicationId, interviewId, etc.)
+  isRead    Boolean          @default(false) @map("is_read")
+  readAt    DateTime?        @map("read_at")
+  actionUrl String?          @map("action_url")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
 }
