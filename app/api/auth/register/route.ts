@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { RegisterRequest, AuthResponse, ErrorResponse, UserWithPassword } from '@/types/auth.types';
+import { generateTokenPair } from '@/lib/jwt';
 
 export async function POST(request: Request): Promise<NextResponse<AuthResponse | ErrorResponse>> {
   try {
@@ -134,13 +135,47 @@ export async function POST(request: Request): Promise<NextResponse<AuthResponse 
 
     const { password: _, ...userWithoutPassword } = result as UserWithPassword;
 
-    return NextResponse.json(
+    // Generate JWT tokens with companyId if user is a company
+    const tokenPayload: any = {
+      userId: result.id,
+      email: result.email,
+      userType: result.userType,
+    };
+
+    if (result.userType === 'COMPANY' && result.companyId) {
+      tokenPayload.companyId = result.companyId;
+    }
+
+    const { accessToken, refreshToken } = await generateTokenPair(tokenPayload);
+
+    // Create response with tokens
+    const response = NextResponse.json(
       { 
         message: 'Account created successfully',
-        user: userWithoutPassword
+        user: userWithoutPassword,
+        accessToken,
+        refreshToken,
       },
       { status: 201 }
     );
+
+    // Set tokens as httpOnly cookies
+    response.cookies.set('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 15, // 15 minutes
+      path: '/',
+    });
+
+    response.cookies.set('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
+    });
+    return response;
 
   } catch (error) {
     console.error('Registration error:', error);

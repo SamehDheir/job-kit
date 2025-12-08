@@ -65,9 +65,12 @@ export default function LoginPage() {
       }
 
       console.log("Login successful:", data.user);
-      toast.success(
-        `Welcome back, ${data.user.fullName || data.user.companyName}!`
-      );
+
+      // Get user name based on type
+      const userName =
+        data.user.userType === "COMPANY" ? data.user.name : data.user.name;
+
+      toast.success(`Welcome back, ${userName}!`);
 
       // Login with tokens (cookies are set automatically by server)
       login(data.user, data.accessToken, data.refreshToken);

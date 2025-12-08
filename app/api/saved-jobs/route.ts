@@ -155,8 +155,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log(`✅ Job saved by user ${userId}: ${job.title}`);
+
     return NextResponse.json(
-      { message: "Job saved successfully", savedJob },
+      { 
+        message: "Job saved successfully", 
+        savedJob,
+        jobTitle: job.title 
+      },
       { status: 201 }
     );
   } catch (error) {

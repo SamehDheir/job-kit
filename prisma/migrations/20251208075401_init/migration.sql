@@ -7,6 +7,15 @@ CREATE TYPE "WorkType" AS ENUM ('FULL_TIME', 'PART_TIME', 'CONTRACT', 'FREELANCE
 -- CreateEnum
 CREATE TYPE "ApplicationStatus" AS ENUM ('PENDING', 'REVIEWED', 'SHORTLISTED', 'INTERVIEWING', 'ACCEPTED', 'REJECTED', 'WITHDRAWN');
 
+-- CreateEnum
+CREATE TYPE "InterviewType" AS ENUM ('VIDEO_CALL', 'PHONE_CALL', 'IN_PERSON', 'ASSESSMENT');
+
+-- CreateEnum
+CREATE TYPE "InterviewStatus" AS ENUM ('SCHEDULED', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW', 'RESCHEDULED');
+
+-- CreateEnum
+CREATE TYPE "NotificationType" AS ENUM ('NEW_APPLICATION', 'APPLICATION_VIEWED', 'APPLICATION_SHORTLISTED', 'APPLICATION_ACCEPTED', 'APPLICATION_REJECTED', 'INTERVIEW_SCHEDULED', 'INTERVIEW_CONFIRMED', 'INTERVIEW_RESCHEDULED', 'INTERVIEW_CANCELLED', 'INTERVIEW_REMINDER', 'INTERVIEW_COMPLETED', 'INTERVIEW_FEEDBACK', 'NEW_MESSAGE', 'NEW_JOB_MATCH', 'JOB_DEADLINE_REMINDER', 'SYSTEM_ANNOUNCEMENT', 'ACCOUNT_UPDATE');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
@@ -71,6 +80,7 @@ CREATE TABLE "job_applications" (
     "user_id" TEXT NOT NULL,
     "cover_letter" TEXT,
     "status" "ApplicationStatus" NOT NULL DEFAULT 'PENDING',
+    "notes" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -113,6 +123,7 @@ CREATE TABLE "resumes" (
     "skills" JSONB NOT NULL,
     "languages" JSONB NOT NULL,
     "education" JSONB NOT NULL,
+    "certifications" JSONB,
     "experience" JSONB NOT NULL,
     "projects" JSONB NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -143,10 +154,86 @@ CREATE TABLE "Message" (
     "senderId" TEXT NOT NULL,
     "receiverId" TEXT NOT NULL,
     "content" TEXT NOT NULL,
+    "attachments" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "messageType" TEXT NOT NULL DEFAULT 'text',
     "isRead" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "interviews" (
+    "id" TEXT NOT NULL,
+    "application_id" TEXT NOT NULL,
+    "job_id" TEXT NOT NULL,
+    "candidate_id" TEXT NOT NULL,
+    "company_id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "interview_type" "InterviewType" NOT NULL,
+    "scheduled_at" TIMESTAMP(3) NOT NULL,
+    "duration" INTEGER NOT NULL DEFAULT 60,
+    "status" "InterviewStatus" NOT NULL DEFAULT 'SCHEDULED',
+    "meeting_link" TEXT,
+    "meeting_password" TEXT,
+    "location" TEXT,
+    "company_notes" TEXT,
+    "candidate_notes" TEXT,
+    "feedback" TEXT,
+    "rating" INTEGER,
+    "reminder_sent" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "interviews_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "notifications" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "type" "NotificationType" NOT NULL,
+    "title" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "data" JSONB,
+    "is_read" BOOLEAN NOT NULL DEFAULT false,
+    "read_at" TIMESTAMP(3),
+    "action_url" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "notifications_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "saved_jobs" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "job_id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "saved_jobs_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "saved_companies" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "company_id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "saved_companies_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "search_history" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "query" TEXT NOT NULL,
+    "filters" JSONB,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "search_history_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -163,6 +250,27 @@ CREATE UNIQUE INDEX "job_seekers_user_id_key" ON "job_seekers"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "MessageThread_companyId_applicantId_jobId_key" ON "MessageThread"("companyId", "applicantId", "jobId");
+
+-- CreateIndex
+CREATE INDEX "notifications_user_id_is_read_idx" ON "notifications"("user_id", "is_read");
+
+-- CreateIndex
+CREATE INDEX "notifications_user_id_created_at_idx" ON "notifications"("user_id", "created_at");
+
+-- CreateIndex
+CREATE INDEX "saved_jobs_user_id_created_at_idx" ON "saved_jobs"("user_id", "created_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "saved_jobs_user_id_job_id_key" ON "saved_jobs"("user_id", "job_id");
+
+-- CreateIndex
+CREATE INDEX "saved_companies_user_id_created_at_idx" ON "saved_companies"("user_id", "created_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "saved_companies_user_id_company_id_key" ON "saved_companies"("user_id", "company_id");
+
+-- CreateIndex
+CREATE INDEX "search_history_user_id_created_at_idx" ON "search_history"("user_id", "created_at");
 
 -- AddForeignKey
 ALTER TABLE "companies" ADD CONSTRAINT "companies_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -199,3 +307,33 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_senderId_fkey" FOREIGN KEY ("sende
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "interviews" ADD CONSTRAINT "interviews_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "job_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "interviews" ADD CONSTRAINT "interviews_job_id_fkey" FOREIGN KEY ("job_id") REFERENCES "jobs"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "interviews" ADD CONSTRAINT "interviews_candidate_id_fkey" FOREIGN KEY ("candidate_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "interviews" ADD CONSTRAINT "interviews_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "saved_jobs" ADD CONSTRAINT "saved_jobs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "saved_jobs" ADD CONSTRAINT "saved_jobs_job_id_fkey" FOREIGN KEY ("job_id") REFERENCES "jobs"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "saved_companies" ADD CONSTRAINT "saved_companies_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "saved_companies" ADD CONSTRAINT "saved_companies_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "search_history" ADD CONSTRAINT "search_history_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

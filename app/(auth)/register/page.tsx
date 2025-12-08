@@ -4,6 +4,7 @@ import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FiEye, FiEyeOff, FiMail, FiLock, FiUser } from "react-icons/fi";
 import Shape from "@/components/ui/shapes/Shape";
 import { useAuth } from "@/contexts/AuthContext";
@@ -97,6 +98,7 @@ const initialValues = {
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = React.useState(false);
   const { login } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (
     values: typeof initialValues,
@@ -157,15 +159,38 @@ export default function RegisterPage() {
         return;
       }
 
-      toast.success("Account created successfully!");
+      // Login with tokens first
+      login(data.user, data.accessToken, data.refreshToken);
 
-      login(data.user);
+      toast.success("Account created successfully! Redirecting...");
 
-      if (values.userType === "COMPANY") {
-        window.location.href = "/dashboard/company";
-      } else {
-        window.location.href = "/dashboard/user";
+      // Wait and verify cookies are set by checking /api/auth/me
+      let verified = false;
+      for (let i = 0; i < 5; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        try {
+          const meRes = await fetch("/api/auth/me", { credentials: "include" });
+          if (meRes.ok) {
+            verified = true;
+            break;
+          }
+        } catch (e) {
+          console.log("Waiting for auth to be ready...");
+        }
       }
+
+      if (!verified) {
+        console.warn(
+          "Auth verification took longer than expected, redirecting anyway"
+        );
+      }
+
+      // Use full page reload to ensure cookies are sent with the request
+      const redirectPath =
+        values.userType === "COMPANY"
+          ? "/dashboard/company"
+          : "/dashboard/user";
+      window.location.href = redirectPath;
     } catch (error) {
       console.error("Registration error:", error);
       toast.error("Something went wrong. Please try again.");

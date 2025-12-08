@@ -6,6 +6,7 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { MapPin, Briefcase, DollarSign, Calendar, Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import toast from "react-hot-toast";
 
 interface JobCardProps {
   job: Job & {
@@ -49,14 +50,19 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
     setIsLoading(true);
     try {
       if (isSaved) {
-        await fetch(`/api/saved-jobs?jobId=${job.id}`, {
+        const res = await fetch(`/api/saved-jobs?jobId=${job.id}`, {
           method: "DELETE",
           headers: {
             "x-user-id": user.id,
           },
         });
+
+        if (res.ok) {
+          setIsSaved(false);
+          toast.success("Job removed from saved list");
+        }
       } else {
-        await fetch("/api/saved-jobs", {
+        const res = await fetch("/api/saved-jobs", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -64,10 +70,19 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
           },
           body: JSON.stringify({ jobId: job.id }),
         });
+
+        if (res.ok) {
+          const data = await res.json();
+          setIsSaved(true);
+          toast.success(`"${job.title}" saved successfully!`);
+        } else {
+          const data = await res.json();
+          toast.error(data.error || "Failed to save job");
+        }
       }
-      setIsSaved(!isSaved);
     } catch (error) {
       console.error("Error saving job:", error);
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
