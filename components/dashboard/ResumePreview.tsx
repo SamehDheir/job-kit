@@ -51,6 +51,8 @@ export default function ResumePreview({
     "idle" | "saving" | "saved" | "error"
   >("idle");
   const [pendingSave, setPendingSave] = useState(false);
+  const [newCert, setNewCert] = useState<CertificationItem>(() => ({
+    type: "certification",
   const [newCert, setNewCert] = useState<CertificationItem>({
     id: generateId(),
     name: "",
@@ -60,6 +62,7 @@ export default function ResumePreview({
     credentialUrl: "",
     fileUrl: "",
     fileName: "",
+  }));
   });
 
   const isEditable = mode === "editable";
@@ -393,7 +396,6 @@ export default function ResumePreview({
     [resumeData, saveToServer]
   );
   // Using the generic saveArrayItemEdit for Certification edits now.
-  // --------------------------------------------------------------------------
 
   const renderSaveStatus = () => {
     if (!autoSave || !isEditable || saveStatus === "idle") return null;
@@ -977,6 +979,8 @@ export default function ResumePreview({
             })}
           </div>
 
+          {/* ---------------  EXPERIENCE  --------------- */}
+          <div className="mb-6 pb-4 border-gray-300 border-b">
           {/* ---------------  CERTIFICATIONS  --------------- */}
           <div className="mb-6 pb-4 border-gray-300 border-b dark:border-gray-700">
             <div className="flex justify-between items-center mb-3">
@@ -1417,6 +1421,224 @@ export default function ResumePreview({
                 </div>
               );
             })}
+          </div>
+
+          {/* ---------------  CERTIFICATIONS   --------------- */}
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-semibold text-xl">Certificates</h2>
+              {isEditable && editing !== "cert-new" && (
+                <button
+                  onClick={() => setEditing("cert-new")}
+                  className="hover:bg-gray-100 p-2 rounded-lg transition-colors"
+                  aria-label="Add certification"
+                >
+                  <Plus className="w-5 h-5 text-green-600" />
+                </button>
+              )}
+            </div>
+            {editing === "cert-new" && (
+              <div className="space-y-3 mb-4 p-4 border border-gray-200 rounded">
+                <input
+                  value={newCert.name}
+                  onChange={(e) =>
+                    setNewCert({ ...newCert, name: e.target.value })
+                  }
+                  className="px-3 py-2 border rounded w-full"
+                  placeholder="Certification Name *"
+                  autoFocus
+                />
+                <input
+                  value={newCert.issuer}
+                  onChange={(e) =>
+                    setNewCert({ ...newCert, issuer: e.target.value })
+                  }
+                  className="px-3 py-2 border rounded w-full"
+                  placeholder="Issuer *"
+                />
+                <input
+                  type="month"
+                  value={newCert.issueDate}
+                  onChange={(e) =>
+                    setNewCert({ ...newCert, issueDate: e.target.value })
+                  }
+                  className="px-3 py-2 border rounded w-full"
+                />
+                <input
+                  value={newCert.credentialId}
+                  onChange={(e) =>
+                    setNewCert({ ...newCert, credentialId: e.target.value })
+                  }
+                  className="px-3 py-2 border rounded w-full"
+                  placeholder="Credential ID (optional)"
+                />
+                <input
+                  value={newCert.credentialUrl}
+                  onChange={(e) =>
+                    setNewCert({ ...newCert, credentialUrl: e.target.value })
+                  }
+                  className="px-3 py-2 border rounded w-full"
+                  placeholder="Credential URL (optional: verification link)"
+                />
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      if (!newCert.name.trim() || !newCert.issuer.trim()) {
+                        toast.error("Name and Issuer are required");
+                        return;
+                      }
+                      setResumeData({
+                        ...resumeData,
+                        certifications: [...resumeData.certifications, newCert],
+                      });
+                      setNewCert({
+                        type: "certification",
+                        id: generateId(),
+                        name: "",
+                        issuer: "",
+                        issueDate: "",
+                        credentialId: "",
+                        credentialUrl: "",
+                        fileUrl: "",
+                        fileName: "",
+                      });
+                      setEditing(null);
+                      toast.success("Certification added");
+                    }}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setEditing(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <ul className="space-y-3">
+              {resumeData.certifications.map((cert, i) => (
+                <li key={cert.id} className="bg-white p-4 rounded-lg border">
+                  {editing === `cert-${cert.id}` &&
+                  editValue &&
+                  typeof editValue === "object" &&
+                  "type" in editValue &&
+                  editValue.type === "certification" ? (
+                    <div className="space-y-2">
+                      <input
+                        value={(editValue as CertificationItem).name}
+                        onChange={(e) =>
+                          setEditValue({
+                            ...(editValue as CertificationItem),
+                            name: e.target.value,
+                          } as CertificationItem)
+                        }
+                        className="px-3 py-2 border rounded w-full"
+                        placeholder="Name"
+                        autoFocus
+                      />
+                      <input
+                        value={(editValue as CertificationItem).issuer}
+                        onChange={(e) =>
+                          setEditValue({
+                            ...(editValue as CertificationItem),
+                            issuer: e.target.value,
+                          } as CertificationItem)
+                        }
+                        className="px-3 py-2 border rounded w-full"
+                        placeholder="Issuer"
+                      />
+                      <input
+                        type="month"
+                        value={(editValue as CertificationItem).issueDate}
+                        onChange={(e) =>
+                          setEditValue({
+                            ...(editValue as CertificationItem),
+                            issueDate: e.target.value,
+                          } as CertificationItem)
+                        }
+                        className="px-3 py-2 border rounded w-full"
+                      />
+
+                      <input
+                        value={
+                          (editValue as CertificationItem).credentialUrl || ""
+                        }
+                        onChange={(e) =>
+                          setEditValue({
+                            ...(editValue as CertificationItem),
+                            credentialUrl: e.target.value,
+                          } as CertificationItem)
+                        }
+                        className="px-3 py-2 border rounded w-full"
+                        placeholder="Credential URL (optional: verification link)"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => saveCertificationEdit(i)}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            setEditing(null);
+                            setEditValue(null);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold">{cert.name}</p>
+                        <p className="text-gray-600 text-sm">{cert.issuer}</p>
+                        {cert.issueDate && (
+                          <p className="text-gray-500 text-xs">
+                            {cert.issueDate}
+                          </p>
+                        )}
+                      </div>
+                      {isEditable && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              setEditing(`cert-${cert.id}`);
+                              setEditValue(cert);
+                            }}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteCertification(cert.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+
+            {resumeData.certifications.length === 0 && !isEditable && (
+              <p className="text-gray-400 italic">No Certificates added yet</p>
+            )}
           </div>
         </div>
       </div>

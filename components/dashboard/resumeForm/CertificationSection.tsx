@@ -6,7 +6,7 @@ import { generateId } from "@/contexts/ResumeContext";
 import { CertificationItem } from "@/types/resume.data.types";
 import Button from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
-import { Award, Calendar, Key, ExternalLink, FileText, Plus, UploadCloud } from "lucide-react";
+import { Award, Plus } from "lucide-react";
 
 export default function CertificationSection() {
   const { resumeData, setResumeData } = useResume();
@@ -70,7 +70,10 @@ export default function CertificationSection() {
       toast.error("Name & Issuer are required");
       return;
     }
-    setResumeData({ ...resumeData, certifications: [...resumeData.certifications, certification] });
+    setResumeData({
+      ...resumeData,
+      certifications: [...resumeData.certifications, certification],
+    });
     toast.success("Certificate added successfully");
     setCertification({
       id: generateId(),
@@ -101,13 +104,17 @@ export default function CertificationSection() {
 
       <input
         value={certification.name}
-        onChange={(e) => setCertification({ ...certification, name: e.target.value })}
+        onChange={(e) =>
+          setCertification({ ...certification, name: e.target.value })
+        }
         placeholder="Certification Name *"
         className={inputClasses}
       />
       <input
         value={certification.issuer}
-        onChange={(e) => setCertification({ ...certification, issuer: e.target.value })}
+        onChange={(e) =>
+          setCertification({ ...certification, issuer: e.target.value })
+        }
         placeholder="Issuer *"
         className={inputClasses}
       />
@@ -119,6 +126,16 @@ export default function CertificationSection() {
           <input
             type="month"
             value={certification.issueDate}
+            onChange={(e) =>
+              setCertification({ ...certification, issueDate: e.target.value })
+            }
+            className="px-3 py-2 border border-gray-300 focus:border-transparent rounded-lg focus:ring-2 focus:ring-orange-500 w-full"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block mb-1 text-gray-500 text-xs">
+            Credential ID
+          </label>
             onChange={(e) => setCertification({ ...certification, issueDate: e.target.value })}
             className={inputClasses}
           />
@@ -128,7 +145,12 @@ export default function CertificationSection() {
           <label className={labelClasses}>Credential ID</label>
           <input
             value={certification.credentialId}
-            onChange={(e) => setCertification({ ...certification, credentialId: e.target.value })}
+            onChange={(e) =>
+              setCertification({
+                ...certification,
+                credentialId: e.target.value,
+              })
+            }
             placeholder="Optional"
             className={inputClasses}
           />
@@ -137,7 +159,9 @@ export default function CertificationSection() {
 
       <input
         value={certification.credentialUrl}
-        onChange={(e) => setCertification({ ...certification, credentialUrl: e.target.value })}
+        onChange={(e) =>
+          setCertification({ ...certification, credentialUrl: e.target.value })
+        }
         placeholder="Credential URL (optional)"
         className={inputClasses}
       />

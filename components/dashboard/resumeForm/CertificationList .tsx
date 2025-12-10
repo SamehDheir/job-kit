@@ -3,13 +3,15 @@
 import { CertificationItem } from "@/types/resume.data.types";
 import { useResume } from "@/contexts/ResumeContext";
 import { toast } from "react-hot-toast";
-import { Award, Trash2, ExternalLink, Calendar, Key, FileText } from "lucide-react";
+import { Award, Trash2, ExternalLink, Calendar, Key } from "lucide-react";
 
 interface CertificationListProps {
   certifications: CertificationItem[];
 }
 
-export default function CertificationList({ certifications }: CertificationListProps) {
+export default function CertificationList({
+  certifications,
+}: CertificationListProps) {
   const { resumeData, setResumeData } = useResume();
 
   const deleteCertification = (index: number) => {
@@ -60,6 +62,11 @@ export default function CertificationList({ certifications }: CertificationListP
                 <div className="space-y-1 mt-2 text-gray-600 text-sm dark:text-gray-300">
                   {cert.issueDate && (
                     <p className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4 text-gray-500" />
+                      {new Date(cert.issueDate + "-01").toLocaleDateString(
+                        undefined,
+                        { month: "short", year: "numeric" }
+                      )}
                       {/* Dark mode for Calendar icon color */}
                       <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                       {new Date(cert.issueDate + "-01").toLocaleDateString(undefined, {
@@ -76,6 +83,16 @@ export default function CertificationList({ certifications }: CertificationListP
                     </p>
                   )}
                 </div>
+                {cert.credentialUrl && (
+                  <a
+                    href={cert.credentialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 mt-2 text-blue-600 text-sm hover:underline"
+                  >
+                    <ExternalLink className="w-4 h-4" /> Verify
+                  </a>
+                )}
                 <div className="flex items-center gap-3 mt-2">
                   {cert.credentialUrl && (
                     <a
@@ -104,6 +121,7 @@ export default function CertificationList({ certifications }: CertificationListP
             </div>
             <button
               onClick={() => deleteCertification(index)}
+              className="opacity-0 group-hover:opacity-100 text-red-600 hover:text-red-800 transition-opacity cursor-pointer"
               // Dark mode for Trash icon color and hover state
               className="opacity-0 group-hover:opacity-100 text-red-600 hover:text-red-800 transition-opacity cursor-pointer
               dark:text-red-500 dark:hover:text-red-400"
