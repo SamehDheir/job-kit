@@ -128,11 +128,6 @@ export default function DashboardLayout({
               icon: FileText,
             },
             {
-      name: "Certificates", 
-      href: "/dashboard/user/certificates",
-      icon: Award,
-    },
-            {
               name: "Generate Cover Letter ",
               href: "/dashboard/user/cover-letter",
               icon: FileText,
