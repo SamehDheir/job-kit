@@ -9,21 +9,33 @@ interface Params {
 // GET - Get specific application details
 export async function GET(request: NextRequest, { params }: Params) {
   try {
+    const userId = request.headers.get("x-user-id");
     const companyId = request.headers.get("x-company-id");
-    if (!companyId) {
+
+    if (!userId) {
       return NextResponse.json(
-        { error: "Company ID is required" },
-        { status: 400 }
+        { error: "User ID is required" },
+        { status: 401 }
       );
     }
 
     const { id: applicationId } = await params;
 
+    // Build where clause based on user type
+    const whereClause: any = {
+      id: applicationId,
+    };
+
+    // If company user, filter by company
+    if (companyId) {
+      whereClause.job = { companyId: companyId };
+    } else {
+      // If regular user, filter by their user ID
+      whereClause.userId = userId;
+    }
+
     const application = await prisma.jobApplication.findFirst({
-      where: {
-        id: applicationId,
-        job: { companyId: companyId },
-      },
+      where: whereClause,
       include: {
         job: {
           select: {

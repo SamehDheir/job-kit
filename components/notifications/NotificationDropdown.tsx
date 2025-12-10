@@ -151,15 +151,18 @@ export const NotificationDropdown: React.FC = () => {
   }, []);
 
   const handleNotificationClick = (notification: Notification) => {
+    // Mark as read first
     if (!notification.isRead) {
       markAsRead(notification.id);
     }
 
+    // Close dropdown
+    setIsOpen(false);
+
+    // Navigate to action URL if exists
     if (notification.actionUrl) {
       router.push(notification.actionUrl);
     }
-
-    setIsOpen(false);
   };
 
   return (

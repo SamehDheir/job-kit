@@ -63,6 +63,7 @@ export type EditingData =
   | ProjectItem
   | SkillItem
   | LanguageItem
+  | CertificationItem
   | string;
 
   // Raw data coming from API before migration
@@ -89,12 +90,13 @@ export interface ResumeContextProps {
 }
 
 export interface CertificationItem {
+  type?: 'certification';
   id: string;
   name: string;
   issuer: string;
   issueDate: string;
   credentialId?: string;
   credentialUrl?: string;
-  fileUrl: string;
-  fileName: string;
+  fileUrl?: string;
+  fileName?: string;
 }

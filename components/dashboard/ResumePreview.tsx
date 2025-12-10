@@ -1368,17 +1368,6 @@ export default function ResumePreview({
                         }
                         className="px-3 py-2 border rounded w-full"
                       />
-                      <input
-                        value={(editValue as CertificationItem).credentialId}
-                        onChange={(e) =>
-                          setEditValue({
-                            ...(editValue as CertificationItem),
-                            credentialId: e.target.value,
-                          } as CertificationItem)
-                        }
-                        className="px-3 py-2 border rounded w-full"
-                        placeholder="Credential ID"
-                      />
 
                       <input
                         value={
@@ -1422,32 +1411,6 @@ export default function ResumePreview({
                           <p className="text-gray-500 text-xs">
                             {cert.issueDate}
                           </p>
-                        )}
-                        {cert.credentialId && (
-                          <p className="text-gray-500 text-xs">
-                            ID: {cert.credentialId}
-                          </p>
-                        )}
-                        {cert.fileUrl && (
-                          <a
-                            href={cert.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 text-sm underline"
-                          >
-                            {cert.fileName || "View file"}
-                          </a>
-                        )}
-                        {cert.credentialUrl && (
-                          <a
-                            href={cert.credentialUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="ml-2 text-blue-600 text-sm underline"
-                            title="Verify certificate"
-                          >
-                            Verify
-                          </a>
                         )}
                       </div>
                       {isEditable && (

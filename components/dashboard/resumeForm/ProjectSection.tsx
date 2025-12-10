@@ -25,7 +25,7 @@ export default function ProjectSection({ onAdd }: Props) {
     }
     onAdd(proj);
     toast.success("Project added successfully");
-    setProj({ title: "", link: "", description: "" });
+    setProj({ type: "project", title: "", link: "", description: "" });
   };
 
   return (
@@ -54,16 +54,6 @@ export default function ProjectSection({ onAdd }: Props) {
         rows={3}
         className="px-3 py-2 border border-gray-300 focus:border-transparent rounded-lg focus:ring-2 w-full"
       />
-      <Button
-        variant="secondary"
-        className="mt-2 px-4 py-2"
-        onClick={() => {
-          onAdd(proj);
-          setProj({ type: "project", title: "", link: "", description: "" });
-        }}
-      >
-        Add Project
-
       <Button variant="secondary" className="flex justify-center items-center gap-2 w-full" onClick={handleAdd}>
         <Plus className="w-4 h-4" /> Add Project
       </Button>
