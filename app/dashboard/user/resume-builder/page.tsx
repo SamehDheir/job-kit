@@ -1,12 +1,50 @@
 "use client";
 
 import { useEffect, useState } from "react";
+// Utility: Convert lab()/lch() colors to rgb/hex in a DOM subtree
+function convertUnsupportedColorsToRGB(root: HTMLElement) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+  while (walker.nextNode()) {
+    const el = walker.currentNode as HTMLElement;
+    const style = getComputedStyle(el);
+    [
+      "color",
+      "backgroundColor",
+      "borderColor",
+      "borderTopColor",
+      "borderRightColor",
+      "borderBottomColor",
+      "borderLeftColor",
+    ].forEach((prop) => {
+      let val = style.getPropertyValue(prop);
+      // If value is a CSS variable, resolve it
+      if (val && val.startsWith("var(")) {
+        // Try to resolve the variable
+        const match = val.match(/var\((--[\w-]+)\)/);
+        if (match) {
+          const varName = match[1];
+          val = style.getPropertyValue(varName) || val;
+        }
+      }
+      if (val && /lab\(|lch\(/i.test(val)) {
+        // Create a temp element to resolve the color
+        const temp = document.createElement("div");
+        temp.style.color = val;
+        document.body.appendChild(temp);
+        const resolved = getComputedStyle(temp).color;
+        document.body.removeChild(temp);
+        el.style.setProperty(prop, resolved, "important");
+      }
+    });
+  }
+}
 import MultiStepResumeForm from "@/components/dashboard/resumeForm/MultiStepResumeForm";
 import ResumePreviewWithTemplate from "@/components/dashboard/ResumePreviewWithTemplate";
 import TemplateSelector from "@/components/dashboard/resumeForm/TemplateSelector";
 import Button from "@/components/ui/Button";
 import { useResume } from "@/contexts/ResumeContext";
 import { Palette, Download, FileText } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ResumeBuilderPage() {
   const { loadResume, selectedTemplate, setSelectedTemplate, resumeData } =
@@ -20,46 +58,95 @@ export default function ResumeBuilderPage() {
 
   const generatePDF = async () => {
     setIsGeneratingPDF(true);
+    const loadingToast = toast.loading("Generating PDF...");
     try {
+      // Wait for rendering to complete
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Dynamic import to avoid SSR issues
       const html2canvas = (await import("html2canvas")).default;
       const jsPDF = (await import("jspdf")).default;
 
       const element = document.querySelector(".resume-preview");
       if (!element) {
-        alert("Resume preview not found");
+        toast.error("Resume preview not found. Please refresh and try again.", {
+          id: loadingToast,
+        });
         return;
       }
 
+      // Convert lab/lch colors to rgb/hex before capture
+      convertUnsupportedColorsToRGB(element as HTMLElement);
+
+      // Check if element has content
+      if (!element.innerHTML || element.innerHTML.trim() === "") {
+        toast.error("Resume content is empty. Please add content first.", {
+          id: loadingToast,
+        });
+        return;
+      }
+
+      // Direct capture without cloning first
       const canvas = await html2canvas(element as HTMLElement, {
-        scale: 2,
+        scale: 1,
         useCORS: true,
+        allowTaint: true,
         backgroundColor: "#ffffff",
+        logging: true,
+        width: element.scrollWidth || element.clientWidth,
+        height: element.scrollHeight || element.clientHeight,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
       });
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        throw new Error("Canvas is empty - no content captured");
+      }
 
+      // Convert to PDF
+      const imgData = canvas.toDataURL("image/png", 1.0);
+      if (imgData === "data:,") {
+        throw new Error("Canvas generated empty image data");
+      }
+
+      const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 0;
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        imgX,
-        imgY,
-        imgWidth * ratio,
-        imgHeight * ratio
-      );
-      pdf.save(`${resumeData?.personalInfo?.name || "resume"}.pdf`);
+      const imgAspectRatio = canvas.height / canvas.width;
+      // Calculate dimensions to fit page with margins
+      const maxWidth = pdfWidth - 20;
+      const maxHeight = pdfHeight - 20;
+      let finalWidth = maxWidth;
+      let finalHeight = maxWidth * imgAspectRatio;
+      if (finalHeight > maxHeight) {
+        finalHeight = maxHeight;
+        finalWidth = maxHeight / imgAspectRatio;
+      }
+      const x = (pdfWidth - finalWidth) / 2;
+      const y = 10;
+      pdf.addImage(imgData, "PNG", x, y, finalWidth, finalHeight);
+      // Save with clean filename
+      const fileName = `${
+        resumeData?.name
+          ?.replace(/[^a-zA-Z0-9\s]/g, "")
+          .trim()
+          .replace(/\s+/g, "_") || "resume"
+      }.pdf`;
+      pdf.save(fileName);
+      toast.success("PDF generated successfully!", { id: loadingToast });
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Error generating PDF. Please try again.");
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      toast.error(`PDF generation failed: ${errorMessage}`, {
+        id: loadingToast,
+      });
+      setTimeout(() => {
+        toast.info("Opening print dialog as fallback...");
+        window.print();
+      }, 2000);
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -150,14 +237,14 @@ export default function ResumeBuilderPage() {
                       disabled={isGeneratingPDF}
                       className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-white"
                     >
-                      <FileText className="w-4 h-4 text-white"/>
+                      <FileText className="w-4 h-4 text-white" />
                       {isGeneratingPDF ? "Generating..." : "Export as PDF"}
                     </button>
                     <button
                       onClick={exportAsWord}
                       className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-white"
                     >
-                      <FileText className="w-4 h-4 text-white"/>
+                      <FileText className="w-4 h-4 text-white" />
                       Export as Word
                     </button>
                   </div>
