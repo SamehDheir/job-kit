@@ -73,7 +73,7 @@ export default function DashboardLayout({
           name: "Company",
           items: [
             {
-              name: "Company Dashboard",
+              name: "Dashboard",
               href: "/dashboard/company",
               icon: Building,
             },
@@ -113,7 +113,7 @@ export default function DashboardLayout({
           name: "User",
           items: [
             {
-              name: "User Dashboard",
+              name: "Dashboard",
               href: "/dashboard/user",
               icon: UserCheck,
             },
@@ -126,11 +126,6 @@ export default function DashboardLayout({
               name: "Resume Builder",
               href: "/dashboard/user/resume-builder",
               icon: FileText,
-            },
-            {
-              name: "Certificates",
-              href: "/dashboard/user/certificates",
-              icon: Award,
             },
             {
               name: "Generate Cover Letter ",
@@ -153,7 +148,7 @@ export default function DashboardLayout({
               icon: MessageCircle,
             },
             {
-              name: "User Settings",
+              name: "Account Settings",
               href: "/dashboard/user/settings",
               icon: Settings,
             },
@@ -317,10 +312,13 @@ export default function DashboardLayout({
               ) : user ? (
                 <>
                   <div className="flex items-center space-x-3 mb-4">
-                    <Avatar name={user.name} size="lg" />
+                    <Avatar 
+                      name={user.userType === "COMPANY" ? user.companyName : user.name} 
+                      size="lg" 
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 text-sm truncate dark:text-white">
-                        {user.name || "User"}
+                        {user.userType === "COMPANY" ? user.companyName : user.name || "User"}
                       </p>
                       <p className="text-gray-500 text-xs truncate dark:text-gray-400">
                         {user.email}
@@ -405,7 +403,7 @@ export default function DashboardLayout({
                         className="flex items-center space-x-2 hover:bg-gray-100 p-1 rounded-lg transition-colors dark:hover:bg-gray-700"
                       >
                         <Avatar
-                          name={user.name}
+                          name={user.userType === "COMPANY" ? user.companyName : user.name}
                           size="md"
                           className="cursor-pointer"
                         />
@@ -416,7 +414,7 @@ export default function DashboardLayout({
                         <div className="right-0 z-50 absolute bg-white shadow-lg mt-2 py-2 border rounded-md w-48 dark:bg-gray-700 dark:border-gray-600 dark:shadow-xl">
                           <div className="px-4 py-2 border-gray-100 border-b dark:border-gray-600">
                             <p className="font-medium text-gray-900 text-sm dark:text-white">
-                              {user.name}
+                              {user.userType === "COMPANY" ? user.companyName : user.name}
                             </p>
                             <p className="text-gray-500 text-xs dark:text-gray-400">
                               {user.email}

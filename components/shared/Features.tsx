@@ -7,43 +7,49 @@ const Features = () => {
       icon: <Sparkles className="w-6 h-6" />,
       title: "AI-Powered Resume Builder",
       description:
-        "Our AI analyzes job descriptions and suggests the best content for your resume",
+        "Create professional resumes with AI that analyzes job descriptions and suggests the best content",
       color: "from-purple-500 to-pink-500",
+      audience: "seekers",
+    },
+    {
+      icon: <Target className="w-6 h-6" />,
+      title: "Smart Job Matching",
+      description:
+        "Connect job seekers with opportunities and help companies find perfect candidates instantly",
+      color: "from-blue-500 to-indigo-500",
+      audience: "both",
     },
     {
       icon: <Zap className="w-6 h-6" />,
-      title: "Instant ATS Optimization",
+      title: "Quick Job Posting",
       description:
-        "Ensure your resume passes Applicant Tracking Systems with our smart formatting",
+        "Companies can post jobs in minutes and reach thousands of qualified candidates",
       color: "from-orange-500 to-red-500",
+      audience: "companies",
     },
     {
       icon: <Shield className="w-6 h-6" />,
       title: "Privacy Protected",
       description:
-        "Your personal information is encrypted and secure. We never share your data",
+        "Your personal and company information is encrypted and secure. We never share your data",
       color: "from-green-500 to-emerald-500",
-    },
-    {
-      icon: <Target className="w-6 h-6" />,
-      title: "Job Matching",
-      description:
-        "Get matched with relevant job opportunities based on your skills and experience",
-      color: "from-blue-500 to-indigo-500",
+      audience: "both",
     },
     {
       icon: <Clock className="w-6 h-6" />,
-      title: "5-Minute Setup",
+      title: "Save Time",
       description:
-        "Create a professional resume in minutes, not hours. Pre-filled templates save time",
+        "Job seekers create resumes in 5 minutes. Companies find candidates 10x faster",
       color: "from-yellow-500 to-orange-500",
+      audience: "both",
     },
     {
       icon: <Award className="w-6 h-6" />,
-      title: "Expert Reviews",
+      title: "Verified Quality",
       description:
-        "Get your resume reviewed by industry experts and career coaches",
+        "ATS-friendly resumes for seekers. Pre-screened, qualified candidates for employers",
       color: "from-red-500 to-pink-500",
+      audience: "both",
     },
   ];
 
@@ -63,9 +69,9 @@ const Features = () => {
             <div className="w-8 h-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"></div>{" "}
           </div>{" "}
           <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto leading-relaxed">
-            Everything you need to create a standout resume and land your dream
-            job. Our platform combines cutting-edge technology with proven
-            career expertise.{" "}
+            Powerful features for job seekers to build standout resumes and for
+            companies to find top talent efficiently. Our platform serves both
+            sides of the hiring process.
           </p>{" "}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -267,6 +267,7 @@ export default function ApplicationsPage() {
           {paginatedApps.map((app) => (
             <ApplicationCard
               key={app.id}
+              applicationId={app.id}
               title={app.job.title}
               company={app.job.company?.companyName || "Unknown Company"}
               location={app.job.location}

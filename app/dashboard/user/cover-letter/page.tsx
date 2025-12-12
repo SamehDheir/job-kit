@@ -42,7 +42,19 @@ export default function GeneratePage() {
     });
 
     const resultJson = await generateRes.json();
-    setResult(resultJson.letter);
+
+    if (!generateRes.ok || resultJson.error) {
+      toast.error(resultJson.error || "Failed to generate cover letter");
+      setLoading(false);
+      return;
+    }
+
+    if (resultJson.letter) {
+      setResult(resultJson.letter);
+      toast.success("Cover letter generated successfully!");
+    } else {
+      toast.error("No cover letter was generated");
+    }
 
     setLoading(false);
   }
@@ -97,9 +109,7 @@ export default function GeneratePage() {
             Generated Cover Letter:
           </h2>
           {/* Dark mode result text color */}
-          <pre className="whitespace-pre-wrap dark:text-gray-300">
-            {result}
-          </pre>
+          <pre className="whitespace-pre-wrap dark:text-gray-300">{result}</pre>
         </div>
       )}
     </div>

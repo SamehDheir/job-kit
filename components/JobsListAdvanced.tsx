@@ -57,18 +57,18 @@ const JobsListAdvanced: React.FC<JobsListAdvancedProps> = ({
 
   if (loading) {
     return (
-      <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-orange-50/30">
+      <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-orange-50/30 dark:from-gray-950 dark:to-gray-900">
         <div className="max-w-7xl mx-auto">
           {(title || description) && (
             <div className="text-center mb-12 animate-fade-in">
               <div className="inline-flex items-center gap-3 mb-4">
                 <div className="w-8 h-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
-                <h2 className="text-3xl md:text-5xl font-bold text-gray-900 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                   {title}
                 </h2>
                 <div className="w-8 h-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"></div>
               </div>
-              <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
                 {description}
               </p>
             </div>
@@ -78,15 +78,15 @@ const JobsListAdvanced: React.FC<JobsListAdvancedProps> = ({
             {[1, 2, 3].map((item) => (
               <div
                 key={item}
-                className="bg-white rounded-xl p-6 shadow-sm animate-pulse"
+                className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm animate-pulse"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 bg-gray-200 rounded-lg"></div>
+                  <div className="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
                   <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/6 mb-4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-2"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/6 mb-4"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
                   </div>
                 </div>
               </div>
@@ -99,13 +99,13 @@ const JobsListAdvanced: React.FC<JobsListAdvancedProps> = ({
 
   if (error) {
     return (
-      <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-orange-50/30">
+      <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-orange-50/30 dark:from-gray-950 dark:to-gray-900">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-8">
-            <p className="text-red-800 font-semibold text-lg">
+          <div className="bg-red-50 dark:bg-red-950/40 border-2 border-red-200 dark:border-red-800 rounded-xl p-8">
+            <p className="text-red-800 dark:text-red-400 font-semibold text-lg">
               ⚠️ Failed to load jobs
             </p>
-            <p className="text-red-700 mt-2">{error}</p>
+            <p className="text-red-700 dark:text-red-500 mt-2">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -120,29 +120,29 @@ const JobsListAdvanced: React.FC<JobsListAdvancedProps> = ({
 
   if (jobs.length === 0) {
     return (
-      <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-orange-50/30">
+      <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-orange-50/30 dark:from-gray-950 dark:to-gray-900">
         <div className="max-w-7xl mx-auto">
           {(title || description) && (
             <div className="text-center mb-12 animate-fade-in">
               <div className="inline-flex items-center gap-3 mb-4">
                 <div className="w-8 h-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
-                <h2 className="text-3xl md:text-5xl font-bold text-gray-900 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                   {title}
                 </h2>
                 <div className="w-8 h-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"></div>
               </div>
-              <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
                 {description}
               </p>
             </div>
           )}
 
-          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-200 rounded-xl p-8 text-center shadow-lg">
+          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-gray-900 dark:to-gray-800 border-2 border-orange-200 dark:border-gray-700 rounded-xl p-8 text-center shadow-lg">
             <div className="text-6xl mb-4 animate-float">📭</div>
-            <p className="text-orange-800 font-semibold text-lg mb-2">
+            <p className="text-orange-800 dark:text-orange-400 font-semibold text-lg mb-2">
               No jobs available at the moment
             </p>
-            <p className="text-orange-700 mb-4">
+            <p className="text-orange-700 dark:text-gray-400 mb-4">
               Check back soon for new opportunities!
             </p>
             <div className="w-16 h-1 bg-gradient-to-r from-orange-400 to-red-400 rounded-full mx-auto"></div>
@@ -153,18 +153,18 @@ const JobsListAdvanced: React.FC<JobsListAdvancedProps> = ({
   }
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-orange-50/30">
+    <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-orange-50/30 dark:from-gray-950 dark:to-gray-900">
       <div className="max-w-7xl mx-auto">
         {(title || description) && (
           <div className="text-center mb-12 animate-fade-in">
             <div className="inline-flex items-center gap-3 mb-4">
               <div className="w-8 h-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                 {title}
               </h2>
               <div className="w-8 h-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"></div>
             </div>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
               {description}
             </p>
           </div>
@@ -173,13 +173,13 @@ const JobsListAdvanced: React.FC<JobsListAdvancedProps> = ({
         {/* View Toggle */}
         {allowViewToggle && (
           <div className="flex justify-center mb-8">
-            <div className="inline-flex rounded-lg bg-white p-1 shadow-md border border-gray-200">
+            <div className="inline-flex rounded-lg bg-white dark:bg-gray-800 p-1 shadow-md border border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => setViewMode("list")}
                 className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium text-sm transition-all ${
                   viewMode === "list"
                     ? "bg-orange-500 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
               >
                 <List className="w-4 h-4" />
@@ -190,7 +190,7 @@ const JobsListAdvanced: React.FC<JobsListAdvancedProps> = ({
                 className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium text-sm transition-all ${
                   viewMode === "grid"
                     ? "bg-orange-500 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                 }`}
               >
                 <LayoutGrid className="w-4 h-4" />

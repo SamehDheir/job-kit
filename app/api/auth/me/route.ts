@@ -116,6 +116,7 @@ export async function GET(
         user: {
           ...user,
           companyId: user.company?.id || null,
+          companyName: user.company?.companyName || null,
         },
       },
       { status: 200 }

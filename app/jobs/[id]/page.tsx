@@ -160,10 +160,8 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
     new Date(job.deadline) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   return (
-    // الخلفية الرئيسية
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 py-12">
       <div className="max-w-5xl mx-auto px-4">
-        {/* Header Navigation (لون النص يبقى كما هو لكونه لون براند) */}
         <Link
           href="/jobs"
           className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 mb-8 font-semibold transition-colors transform hover:scale-105"
@@ -174,7 +172,6 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
 
         {/* Main Content Card */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl dark:shadow-2xl overflow-hidden border border-gray-100 dark:border-slate-700">
-          {/* Hero Section - (الخلفية المتدرجة للعنوان ستبقى ثابتة لأنها تعبر عن الهوية البصرية) */}
           <div className="bg-gradient-to-r from-orange-500 to-red-500 p-8 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
@@ -203,33 +200,32 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
               </div>
             </div>
 
-            {/* Quick Info (يجب تكييف لون النص ليكون مقروءًا على خلفية داكنة خفيفة) */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
               <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition-all">
-                <p className="text-black dark:text-gray-200 text-xs font-medium mb-1">Posted On</p>
-                <p className="font-bold text-black dark:text-white text-sm">
+                <p className="text-black text-xs font-medium mb-1">Posted On</p>
+                <p className="font-bold text-black text-sm">
                   {formatDate(job.createdAt)}
                 </p>
               </div>
               <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition-all">
-                <p className="text-black dark:text-gray-200 text-xs font-medium mb-1">Location</p>
-                <p className="font-bold text-black dark:text-white text-sm flex items-center gap-1">
+                <p className="text-black text-xs font-medium mb-1">Location</p>
+                <p className="font-bold text-black text-sm flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
                   {job.location}
                 </p>
               </div>
               <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition-all">
-                <p className="text-black dark:text-gray-200 text-xs font-medium mb-1">Job Type</p>
-                <p className="font-bold text-black dark:text-white text-sm flex items-center gap-1">
+                <p className="text-black text-xs font-medium mb-1">Job Type</p>
+                <p className="font-bold text-black text-sm flex items-center gap-1">
                   <Briefcase className="w-4 h-4" />
                   {job.workType}
                 </p>
               </div>
               <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition-all">
-                <p className="text-black dark:text-gray-200 text-xs font-medium mb-1">
+                <p className="text-black text-xs font-medium mb-1">
                   Experience
                 </p>
-                <p className="font-bold text-black dark:text-white text-sm">
+                <p className="font-bold text-black text-sm">
                   {job.experienceLevel}
                 </p>
               </div>
@@ -297,7 +293,6 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 Job Description
               </h2>
-              {/* تحتاج إلى التأكد من أن Prose يدعم الوضع الداكن في إعدادات Tailwind */}
               <div className="prose prose-lg max-w-none text-gray-700 dark:text-slate-300 leading-relaxed">
                 <p className="whitespace-pre-wrap">{job.description}</p>
               </div>
@@ -378,13 +373,12 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
                 </h2>
                 <div className="flex gap-4 items-start">
                   {job.company.logo && (
-                    // يجب أن يظهر الشعار بوضوح، قد يحتاج إلى خلفية بيضاء في الوضع الداكن إذا كان شفافاً
                     <Image
                       src={job.company.logo}
                       alt={job.company.companyName}
                       width={80}
                       height={80}
-                      className="rounded-lg bg-white p-1 dark:bg-slate-900" // إضافة خلفية بيضاء للشعار في الوضع الداكن
+                      className="rounded-lg bg-white p-1 dark:bg-slate-900"
                     />
                   )}
                   <div>
@@ -408,7 +402,6 @@ export default function JobDetailsPage({ params }: JobDetailsPageProps) {
               </div>
             )}
 
-            {/* CTA Buttons - (الأزرار الرئيسية ستبقى بألوانها الزاهية لتمييزها) */}
             <div className="flex flex-col sm:flex-row gap-4">
               {isAuthenticated ? (
                 user?.userType === "USER" ? (

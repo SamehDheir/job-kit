@@ -75,12 +75,9 @@ export default function ProjectSection({ onAdd }: Props) {
           focus:border-transparent focus:ring-2 focus:ring-orange-500/50
           dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-primary/50"
       />
-      <Button variant="secondary" className="flex justify-center items-center gap-2 w-full" onClick={handleAdd}>
-
-      {/* Button styles (assuming Button component is dark mode compatible, but ensuring layout) */}
       <Button
         variant="secondary"
-        className="flex justify-center items-center gap-2 w-full mt-2"
+        className="flex justify-center items-center gap-2 w-full"
         onClick={handleAdd}
       >
         <Plus className="w-4 h-4" /> Add Project

@@ -51,9 +51,8 @@ export default function ResumePreview({
     "idle" | "saving" | "saved" | "error"
   >("idle");
   const [pendingSave, setPendingSave] = useState(false);
-  const [newCert, setNewCert] = useState<CertificationItem>(() => ({
-    type: "certification",
   const [newCert, setNewCert] = useState<CertificationItem>({
+    type: "certification",
     id: generateId(),
     name: "",
     issuer: "",
@@ -62,7 +61,6 @@ export default function ResumePreview({
     credentialUrl: "",
     fileUrl: "",
     fileName: "",
-  }));
   });
 
   const isEditable = mode === "editable";
@@ -239,7 +237,10 @@ export default function ResumePreview({
   );
 
   const deleteItem = useCallback(
-    (section: "education" | "experience" | "projects" | "certifications", index: number) => {
+    (
+      section: "education" | "experience" | "projects" | "certifications",
+      index: number
+    ) => {
       if (!window.confirm("Are you sure you want to delete this item?")) return;
 
       const updates: Partial<ResumeData> = {
@@ -262,7 +263,11 @@ export default function ResumePreview({
     (section: "education" | "experience" | "projects" | "certifications") => {
       const newIndex = resumeData[section].length;
       let editField: EditingField;
-      let emptyItem: EducationItem | ExperienceItem | ProjectItem | CertificationItem;
+      let emptyItem:
+        | EducationItem
+        | ExperienceItem
+        | ProjectItem
+        | CertificationItem;
 
       if (section === "education") {
         editField = `edu-${newIndex}` as EditingField;
@@ -316,7 +321,10 @@ export default function ResumePreview({
   );
 
   const cancelAdd = useCallback(
-    (section: "education" | "experience" | "projects" | "certifications", index: number) => {
+    (
+      section: "education" | "experience" | "projects" | "certifications",
+      index: number
+    ) => {
       const updates: Partial<ResumeData> = {
         [section]: resumeData[section].filter((_, i) => i !== index),
       };
@@ -910,7 +918,9 @@ export default function ResumePreview({
                         />
                         <input
                           value={editValue.endDate}
-                          onChange={(e) => handleObjectInputChange(e, "endDate")}
+                          onChange={(e) =>
+                            handleObjectInputChange(e, "endDate")
+                          }
                           className="px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                           placeholder="End Date"
                         />
@@ -981,532 +991,36 @@ export default function ResumePreview({
 
           {/* ---------------  EXPERIENCE  --------------- */}
           <div className="mb-6 pb-4 border-gray-300 border-b">
-          {/* ---------------  CERTIFICATIONS  --------------- */}
-          <div className="mb-6 pb-4 border-gray-300 border-b dark:border-gray-700">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-semibold text-xl dark:text-white">
-                Certifications
-              </h2>
-              {isEditable && editing !== "cert-new" && (
-                <button
-                  onClick={() => setEditing("cert-new")}
-                  className="hover:bg-gray-100 p-2 rounded-lg transition-colors dark:hover:bg-gray-700"
-                  aria-label="Add certification"
-                >
-                  <Plus className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </button>
-              )}
-            </div>
-
-            {editing === "cert-new" && (
-              <div className="flex gap-2 mb-3">
-                <input
-                  value={newItemName}
-                  onChange={(e) => setNewItemName(e.target.value)}
-                  className="flex-1 px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  placeholder="Enter Certification Name"
-                  autoFocus
-                />
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={addNewCertification}
-                >
-                  Add
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    setEditing(null);
-                    setNewItemName("");
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            )}
-
-            {resumeData.certifications.length === 0 && !isEditable && (
-              <p className="text-gray-400 italic dark:text-gray-500">
-                No certifications added yet
-              </p>
-            )}
-
-            {resumeData.certifications.map((cert, i) => (
-              <div
-                key={cert.id}
-                className="relative mb-4 p-3 border border-gray-200 rounded dark:border-gray-700 dark:bg-gray-800"
-              >
-                {isEditable && editing !== `cert-${i}` && (
-                  <div className="top-2 right-2 absolute flex gap-2">
-                    <button
-                      onClick={() => {
-                        setEditing(`cert-${i}`);
-                        setEditValue(cert);
-                      }}
-                      className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
-                    >
-                      <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    </button>
-                    <button
-                      onClick={() => deleteItem("certifications", i)}
-                      className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600 dark:text-red-500" />
-                    </button>
-                  </div>
-                )}
-                {editing === `cert-${i}` &&
-                editValue &&
-                typeof editValue === "object" &&
-                "type" in editValue &&
-                editValue.type === "certification" ? (
-                  <div className="space-y-2">
-                    <input
-                      value={editValue.name}
-                      onChange={(e) => handleObjectInputChange(e, "name")}
-                      className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      placeholder="Certification Name"
-                      autoFocus
-                    />
-                    <input
-                      value={editValue.issuer}
-                      onChange={(e) => handleObjectInputChange(e, "issuer")}
-                      className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      placeholder="Issuer"
-                    />
-                    <input
-                      value={editValue.issueDate}
-                      onChange={(e) => handleObjectInputChange(e, "issueDate")}
-                      className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      placeholder="Issue Date (e.g., Dec 2023)"
-                    />
-                    {/* Add other optional fields here if needed for full edit */}
-                    <div className="flex gap-2">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => saveArrayItemEdit("certifications", i)}
-                      >
-                        Save
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => {
-                          setEditing(null);
-                          setEditValue(null);
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="font-semibold dark:text-white">
-                      {cert.name}
-                    </p>
-                    <p className="text-sm italic dark:text-gray-300">
-                      {cert.issuer}
-                    </p>
-                    {cert.issueDate && (
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Issued: {cert.issueDate}
-                      </p>
-                    )}
-                  </div>
+            {/* ---------------  CERTIFICATIONS  --------------- */}
+            <div className="mb-6 pb-4 border-gray-300 border-b dark:border-gray-700">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="font-semibold text-xl dark:text-white">
+                  Certifications
+                </h2>
+                {isEditable && editing !== "cert-new" && (
+                  <button
+                    onClick={() => setEditing("cert-new")}
+                    className="hover:bg-gray-100 p-2 rounded-lg transition-colors dark:hover:bg-gray-700"
+                    aria-label="Add certification"
+                  >
+                    <Plus className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </button>
                 )}
               </div>
-            ))}
-          </div>
 
-          {/* ---------------  EXPERIENCE  --------------- */}
-          <div className="mb-6 pb-4 border-gray-300 border-b dark:border-gray-700">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-semibold text-xl dark:text-white">
-                Experience
-              </h2>
-              {isEditable && (
-                <button
-                  onClick={() => addNewItem("experience")}
-                  className="hover:bg-gray-100 p-2 rounded-lg transition-colors dark:hover:bg-gray-700"
-                  aria-label="Add experience"
-                >
-                  <Plus className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </button>
-              )}
-            </div>
-            {resumeData.experience.length === 0 && !isEditable && (
-              <p className="text-gray-400 italic dark:text-gray-500">
-                No experience added yet
-              </p>
-            )}
-            {resumeData.experience.map((exp, i) => {
-              if (
-                isEditable &&
-                editing !== `exp-${i}` &&
-                !exp.company &&
-                !exp.role
-              ) {
-                return null;
-              }
-
-              return (
-                <div
-                  key={i}
-                  className="relative mb-4 p-3 border border-gray-200 rounded dark:border-gray-700 dark:bg-gray-800"
-                >
-                  {isEditable && editing !== `exp-${i}` && (
-                    <div className="top-2 right-2 absolute flex gap-2">
-                      <button
-                        onClick={() => {
-                          setEditing(`exp-${i}`);
-                          setEditValue({
-                            type: "experience",
-                            company: exp.company,
-                            role: exp.role,
-                            startDate: exp.startDate,
-                            endDate: exp.endDate,
-                            description: exp.description,
-                          });
-                        }}
-                        className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
-                      >
-                        <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      </button>
-                      <button
-                        onClick={() => deleteItem("experience", i)}
-                        className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-500" />
-                      </button>
-                    </div>
-                  )}
-                  {editing === `exp-${i}` &&
-                  editValue &&
-                  typeof editValue === "object" &&
-                  "type" in editValue &&
-                  editValue.type === "experience" ? (
-                    <div className="space-y-2">
-                      <input
-                        value={editValue.role}
-                        onChange={(e) => handleObjectInputChange(e, "role")}
-                        className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="Job Title"
-                        autoFocus
-                      />
-                      <input
-                        value={editValue.company}
-                        onChange={(e) => handleObjectInputChange(e, "company")}
-                        className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="Company"
-                      />
-                      <div className="gap-2 grid grid-cols-2">
-                        <input
-                          value={editValue.startDate}
-                          onChange={(e) =>
-                            handleObjectInputChange(e, "startDate")
-                          }
-                          className="px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                          placeholder="Start Date"
-                        />
-                        <input
-                          value={editValue.endDate}
-                          onChange={(e) => handleObjectInputChange(e, "endDate")}
-                          className="px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                          placeholder="End Date"
-                        />
-                      </div>
-                      <textarea
-                        value={editValue.description}
-                        onChange={(e) =>
-                          handleObjectInputChange(e, "description")
-                        }
-                        className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        rows={3}
-                        placeholder="Description (bullet points are best)"
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => saveArrayItemEdit("experience", i)}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => {
-                            if (!exp.company && !exp.role) {
-                              cancelAdd("experience", i);
-                            } else {
-                              setEditing(null);
-                              setEditValue(null);
-                            }
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      {exp.company || exp.role ? (
-                        <div>
-                          <p className="font-semibold dark:text-white">
-                            {exp.role}
-                          </p>
-                          <p className="text-sm italic dark:text-gray-300">
-                            {exp.company}
-                          </p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">
-                            {exp.startDate} - {exp.endDate}
-                          </p>
-                          {exp.description && (
-                            <p className="mt-1 text-sm whitespace-pre-line dark:text-gray-300">
-                              {exp.description}
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-gray-400 italic dark:text-gray-500">
-                          Click edit to fill in details
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* ---------------  PROJECTS  --------------- */}
-          <div className="mb-6 pb-4 border-gray-300 border-b dark:border-gray-700">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-semibold text-xl dark:text-white">Projects</h2>
-              {isEditable && (
-                <button
-                  onClick={() => addNewItem("projects")}
-                  className="hover:bg-gray-100 p-2 rounded-lg transition-colors dark:hover:bg-gray-700"
-                  aria-label="Add project"
-                >
-                  <Plus className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </button>
-              )}
-            </div>
-            {resumeData.projects.length === 0 && !isEditable && (
-              <p className="text-gray-400 italic dark:text-gray-500">
-                No projects added yet
-              </p>
-            )}
-            {resumeData.projects.map((proj, i) => {
-              if (isEditable && editing !== `proj-${i}` && !proj.title) {
-                return null;
-              }
-
-              return (
-                <div
-                  key={i}
-                  className="relative mb-4 p-3 border border-gray-200 rounded dark:border-gray-700 dark:bg-gray-800"
-                >
-                  {isEditable && editing !== `proj-${i}` && (
-                    <div className="top-2 right-2 absolute flex gap-2">
-                      <button
-                        onClick={() => {
-                          setEditing(`proj-${i}`);
-                          setEditValue({
-                            type: "project",
-                            title: proj.title,
-                            link: proj.link,
-                            description: proj.description,
-                          });
-                        }}
-                        className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
-                      >
-                        <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      </button>
-                      <button
-                        onClick={() => deleteItem("projects", i)}
-                        className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-500" />
-                      </button>
-                    </div>
-                  )}
-                  {editing === `proj-${i}` &&
-                  editValue &&
-                  typeof editValue === "object" &&
-                  "type" in editValue &&
-                  editValue.type === "project" ? (
-                    <div className="space-y-2">
-                      <input
-                        value={editValue.title}
-                        onChange={(e) => handleObjectInputChange(e, "title")}
-                        className="px-3 py-2 border rounded w-full font-semibold dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="Project Title"
-                        autoFocus
-                      />
-                      <input
-                        value={editValue.link}
-                        onChange={(e) => handleObjectInputChange(e, "link")}
-                        className="px-3 py-2 border rounded w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        placeholder="Project Link (URL)"
-                      />
-                      <textarea
-                        value={editValue.description}
-                        onChange={(e) =>
-                          handleObjectInputChange(e, "description")
-                        }
-                        className="px-3 py-2 border rounded w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        rows={3}
-                        placeholder="Description (e.g., Technologies used, outcome)"
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => saveArrayItemEdit("projects", i)}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => {
-                            if (!proj.title) {
-                              cancelAdd("projects", i);
-                            } else {
-                              setEditing(null);
-                              setEditValue(null);
-                            }
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      {proj.title ? (
-                        <div>
-                          <p className="font-semibold dark:text-white">
-                            {proj.title}
-                          </p>
-                          {proj.link && (
-                            <a
-                              href={proj.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                            >
-                              {proj.link}
-                            </a>
-                          )}
-                          {proj.description && (
-                            <p className="mt-1 text-sm whitespace-pre-line dark:text-gray-300">
-                              {proj.description}
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-gray-400 italic dark:text-gray-500">
-                          Click edit to fill in details
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* ---------------  CERTIFICATIONS   --------------- */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-semibold text-xl">Certificates</h2>
-              {isEditable && editing !== "cert-new" && (
-                <button
-                  onClick={() => setEditing("cert-new")}
-                  className="hover:bg-gray-100 p-2 rounded-lg transition-colors"
-                  aria-label="Add certification"
-                >
-                  <Plus className="w-5 h-5 text-green-600" />
-                </button>
-              )}
-            </div>
-            {editing === "cert-new" && (
-              <div className="space-y-3 mb-4 p-4 border border-gray-200 rounded">
-                <input
-                  value={newCert.name}
-                  onChange={(e) =>
-                    setNewCert({ ...newCert, name: e.target.value })
-                  }
-                  className="px-3 py-2 border rounded w-full"
-                  placeholder="Certification Name *"
-                  autoFocus
-                />
-                <input
-                  value={newCert.issuer}
-                  onChange={(e) =>
-                    setNewCert({ ...newCert, issuer: e.target.value })
-                  }
-                  className="px-3 py-2 border rounded w-full"
-                  placeholder="Issuer *"
-                />
-                <input
-                  type="month"
-                  value={newCert.issueDate}
-                  onChange={(e) =>
-                    setNewCert({ ...newCert, issueDate: e.target.value })
-                  }
-                  className="px-3 py-2 border rounded w-full"
-                />
-                <input
-                  value={newCert.credentialId}
-                  onChange={(e) =>
-                    setNewCert({ ...newCert, credentialId: e.target.value })
-                  }
-                  className="px-3 py-2 border rounded w-full"
-                  placeholder="Credential ID (optional)"
-                />
-                <input
-                  value={newCert.credentialUrl}
-                  onChange={(e) =>
-                    setNewCert({ ...newCert, credentialUrl: e.target.value })
-                  }
-                  className="px-3 py-2 border rounded w-full"
-                  placeholder="Credential URL (optional: verification link)"
-                />
-                <div className="flex gap-2 mt-2">
+              {editing === "cert-new" && (
+                <div className="flex gap-2 mb-3">
+                  <input
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    className="flex-1 px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    placeholder="Enter Certification Name"
+                    autoFocus
+                  />
                   <Button
                     variant="primary"
                     size="sm"
-                    onClick={() => {
-                      if (!newCert.name.trim() || !newCert.issuer.trim()) {
-                        toast.error("Name and Issuer are required");
-                        return;
-                      }
-                      setResumeData({
-                        ...resumeData,
-                        certifications: [...resumeData.certifications, newCert],
-                      });
-                      setNewCert({
-                        type: "certification",
-                        id: generateId(),
-                        name: "",
-                        issuer: "",
-                        issueDate: "",
-                        credentialId: "",
-                        credentialUrl: "",
-                        fileUrl: "",
-                        fileName: "",
-                      });
-                      setEditing(null);
-                      toast.success("Certification added");
-                    }}
+                    onClick={addNewCertification}
                   >
                     Add
                   </Button>
@@ -1515,76 +1029,77 @@ export default function ResumePreview({
                     size="sm"
                     onClick={() => {
                       setEditing(null);
+                      setNewItemName("");
                     }}
                   >
                     Cancel
                   </Button>
                 </div>
-              </div>
-            )}
+              )}
 
-            <ul className="space-y-3">
+              {resumeData.certifications.length === 0 && !isEditable && (
+                <p className="text-gray-400 italic dark:text-gray-500">
+                  No certifications added yet
+                </p>
+              )}
+
               {resumeData.certifications.map((cert, i) => (
-                <li key={cert.id} className="bg-white p-4 rounded-lg border">
-                  {editing === `cert-${cert.id}` &&
+                <div
+                  key={cert.id}
+                  className="relative mb-4 p-3 border border-gray-200 rounded dark:border-gray-700 dark:bg-gray-800"
+                >
+                  {isEditable && editing !== `cert-${i}` && (
+                    <div className="top-2 right-2 absolute flex gap-2">
+                      <button
+                        onClick={() => {
+                          setEditing(`cert-${i}`);
+                          setEditValue(cert);
+                        }}
+                        className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
+                      >
+                        <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </button>
+                      <button
+                        onClick={() => deleteItem("certifications", i)}
+                        className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-500" />
+                      </button>
+                    </div>
+                  )}
+                  {editing === `cert-${i}` &&
                   editValue &&
                   typeof editValue === "object" &&
                   "type" in editValue &&
                   editValue.type === "certification" ? (
                     <div className="space-y-2">
                       <input
-                        value={(editValue as CertificationItem).name}
-                        onChange={(e) =>
-                          setEditValue({
-                            ...(editValue as CertificationItem),
-                            name: e.target.value,
-                          } as CertificationItem)
-                        }
-                        className="px-3 py-2 border rounded w-full"
-                        placeholder="Name"
+                        value={editValue.name}
+                        onChange={(e) => handleObjectInputChange(e, "name")}
+                        className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="Certification Name"
                         autoFocus
                       />
                       <input
-                        value={(editValue as CertificationItem).issuer}
-                        onChange={(e) =>
-                          setEditValue({
-                            ...(editValue as CertificationItem),
-                            issuer: e.target.value,
-                          } as CertificationItem)
-                        }
-                        className="px-3 py-2 border rounded w-full"
+                        value={editValue.issuer}
+                        onChange={(e) => handleObjectInputChange(e, "issuer")}
+                        className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         placeholder="Issuer"
                       />
                       <input
-                        type="month"
-                        value={(editValue as CertificationItem).issueDate}
+                        value={editValue.issueDate}
                         onChange={(e) =>
-                          setEditValue({
-                            ...(editValue as CertificationItem),
-                            issueDate: e.target.value,
-                          } as CertificationItem)
+                          handleObjectInputChange(e, "issueDate")
                         }
-                        className="px-3 py-2 border rounded w-full"
+                        className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="Issue Date (e.g., Dec 2023)"
                       />
-
-                      <input
-                        value={
-                          (editValue as CertificationItem).credentialUrl || ""
-                        }
-                        onChange={(e) =>
-                          setEditValue({
-                            ...(editValue as CertificationItem),
-                            credentialUrl: e.target.value,
-                          } as CertificationItem)
-                        }
-                        className="px-3 py-2 border rounded w-full"
-                        placeholder="Credential URL (optional: verification link)"
-                      />
+                      {/* Add other optional fields here if needed for full edit */}
                       <div className="flex gap-2">
                         <Button
                           variant="primary"
                           size="sm"
-                          onClick={() => saveCertificationEdit(i)}
+                          onClick={() => saveArrayItemEdit("certifications", i)}
                         >
                           Save
                         </Button>
@@ -1601,48 +1116,334 @@ export default function ResumePreview({
                       </div>
                     </div>
                   ) : (
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold">{cert.name}</p>
-                        <p className="text-gray-600 text-sm">{cert.issuer}</p>
-                        {cert.issueDate && (
-                          <p className="text-gray-500 text-xs">
-                            {cert.issueDate}
-                          </p>
-                        )}
-                      </div>
-                      {isEditable && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              setEditing(`cert-${cert.id}`);
-                              setEditValue(cert);
-                            }}
-                            className="text-blue-600 hover:text-blue-700"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => deleteCertification(cert.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                    <div>
+                      <p className="font-semibold dark:text-white">
+                        {cert.name}
+                      </p>
+                      <p className="text-sm italic dark:text-gray-300">
+                        {cert.issuer}
+                      </p>
+                      {cert.issueDate && (
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Issued: {cert.issueDate}
+                        </p>
                       )}
                     </div>
                   )}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
 
-            {resumeData.certifications.length === 0 && !isEditable && (
-              <p className="text-gray-400 italic">No Certificates added yet</p>
-            )}
+            {/* ---------------  EXPERIENCE  --------------- */}
+            <div className="mb-6 pb-4 border-gray-300 border-b dark:border-gray-700">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="font-semibold text-xl dark:text-white">
+                  Experience
+                </h2>
+                {isEditable && (
+                  <button
+                    onClick={() => addNewItem("experience")}
+                    className="hover:bg-gray-100 p-2 rounded-lg transition-colors dark:hover:bg-gray-700"
+                    aria-label="Add experience"
+                  >
+                    <Plus className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </button>
+                )}
+              </div>
+              {resumeData.experience.length === 0 && !isEditable && (
+                <p className="text-gray-400 italic dark:text-gray-500">
+                  No experience added yet
+                </p>
+              )}
+              {resumeData.experience.map((exp, i) => {
+                if (
+                  isEditable &&
+                  editing !== `exp-${i}` &&
+                  !exp.company &&
+                  !exp.role
+                ) {
+                  return null;
+                }
+
+                return (
+                  <div
+                    key={i}
+                    className="relative mb-4 p-3 border border-gray-200 rounded dark:border-gray-700 dark:bg-gray-800"
+                  >
+                    {isEditable && editing !== `exp-${i}` && (
+                      <div className="top-2 right-2 absolute flex gap-2">
+                        <button
+                          onClick={() => {
+                            setEditing(`exp-${i}`);
+                            setEditValue({
+                              type: "experience",
+                              company: exp.company,
+                              role: exp.role,
+                              startDate: exp.startDate,
+                              endDate: exp.endDate,
+                              description: exp.description,
+                            });
+                          }}
+                          className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
+                        >
+                          <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        </button>
+                        <button
+                          onClick={() => deleteItem("experience", i)}
+                          className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600 dark:text-red-500" />
+                        </button>
+                      </div>
+                    )}
+                    {editing === `exp-${i}` &&
+                    editValue &&
+                    typeof editValue === "object" &&
+                    "type" in editValue &&
+                    editValue.type === "experience" ? (
+                      <div className="space-y-2">
+                        <input
+                          value={editValue.role}
+                          onChange={(e) => handleObjectInputChange(e, "role")}
+                          className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Job Title"
+                          autoFocus
+                        />
+                        <input
+                          value={editValue.company}
+                          onChange={(e) =>
+                            handleObjectInputChange(e, "company")
+                          }
+                          className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Company"
+                        />
+                        <div className="gap-2 grid grid-cols-2">
+                          <input
+                            value={editValue.startDate}
+                            onChange={(e) =>
+                              handleObjectInputChange(e, "startDate")
+                            }
+                            className="px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            placeholder="Start Date"
+                          />
+                          <input
+                            value={editValue.endDate}
+                            onChange={(e) =>
+                              handleObjectInputChange(e, "endDate")
+                            }
+                            className="px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            placeholder="End Date"
+                          />
+                        </div>
+                        <textarea
+                          value={editValue.description}
+                          onChange={(e) =>
+                            handleObjectInputChange(e, "description")
+                          }
+                          className="px-3 py-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          rows={3}
+                          placeholder="Description (bullet points are best)"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => saveArrayItemEdit("experience", i)}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => {
+                              if (!exp.company && !exp.role) {
+                                cancelAdd("experience", i);
+                              } else {
+                                setEditing(null);
+                                setEditValue(null);
+                              }
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {exp.company || exp.role ? (
+                          <div>
+                            <p className="font-semibold dark:text-white">
+                              {exp.role}
+                            </p>
+                            <p className="text-sm italic dark:text-gray-300">
+                              {exp.company}
+                            </p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                              {exp.startDate} - {exp.endDate}
+                            </p>
+                            {exp.description && (
+                              <p className="mt-1 text-sm whitespace-pre-line dark:text-gray-300">
+                                {exp.description}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-gray-400 italic dark:text-gray-500">
+                            Click edit to fill in details
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ---------------  PROJECTS  --------------- */}
+            <div className="mb-6 pb-4 border-gray-300 border-b dark:border-gray-700">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="font-semibold text-xl dark:text-white">
+                  Projects
+                </h2>
+                {isEditable && (
+                  <button
+                    onClick={() => addNewItem("projects")}
+                    className="hover:bg-gray-100 p-2 rounded-lg transition-colors dark:hover:bg-gray-700"
+                    aria-label="Add project"
+                  >
+                    <Plus className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </button>
+                )}
+              </div>
+              {resumeData.projects.length === 0 && !isEditable && (
+                <p className="text-gray-400 italic dark:text-gray-500">
+                  No projects added yet
+                </p>
+              )}
+              {resumeData.projects.map((proj, i) => {
+                if (isEditable && editing !== `proj-${i}` && !proj.title) {
+                  return null;
+                }
+
+                return (
+                  <div
+                    key={i}
+                    className="relative mb-4 p-3 border border-gray-200 rounded dark:border-gray-700 dark:bg-gray-800"
+                  >
+                    {isEditable && editing !== `proj-${i}` && (
+                      <div className="top-2 right-2 absolute flex gap-2">
+                        <button
+                          onClick={() => {
+                            setEditing(`proj-${i}`);
+                            setEditValue({
+                              type: "project",
+                              title: proj.title,
+                              link: proj.link,
+                              description: proj.description,
+                            });
+                          }}
+                          className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
+                        >
+                          <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        </button>
+                        <button
+                          onClick={() => deleteItem("projects", i)}
+                          className="hover:bg-gray-100 p-1 rounded transition-colors dark:hover:bg-gray-700"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600 dark:text-red-500" />
+                        </button>
+                      </div>
+                    )}
+                    {editing === `proj-${i}` &&
+                    editValue &&
+                    typeof editValue === "object" &&
+                    "type" in editValue &&
+                    editValue.type === "project" ? (
+                      <div className="space-y-2">
+                        <input
+                          value={editValue.title}
+                          onChange={(e) => handleObjectInputChange(e, "title")}
+                          className="px-3 py-2 border rounded w-full font-semibold dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Project Title"
+                          autoFocus
+                        />
+                        <input
+                          value={editValue.link}
+                          onChange={(e) => handleObjectInputChange(e, "link")}
+                          className="px-3 py-2 border rounded w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Project Link (URL)"
+                        />
+                        <textarea
+                          value={editValue.description}
+                          onChange={(e) =>
+                            handleObjectInputChange(e, "description")
+                          }
+                          className="px-3 py-2 border rounded w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          rows={3}
+                          placeholder="Description (e.g., Technologies used, outcome)"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => saveArrayItemEdit("projects", i)}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => {
+                              if (!proj.title) {
+                                cancelAdd("projects", i);
+                              } else {
+                                setEditing(null);
+                                setEditValue(null);
+                              }
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {proj.title ? (
+                          <div>
+                            <p className="font-semibold dark:text-white">
+                              {proj.title}
+                            </p>
+                            {proj.link && (
+                              <a
+                                href={proj.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+                              >
+                                {proj.link}
+                              </a>
+                            )}
+                            {proj.description && (
+                              <p className="mt-1 text-sm whitespace-pre-line dark:text-gray-300">
+                                {proj.description}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-gray-400 italic dark:text-gray-500">
+                            Click edit to fill in details
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
+        {renderSaveStatus()}
       </div>
-      {renderSaveStatus()}
     </>
   );
 }

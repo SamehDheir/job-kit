@@ -52,6 +52,8 @@ export async function GET(request: NextRequest, { params }: Params) {
                 id: true,
                 companyName: true,
                 logo: true,
+                website: true,
+                location: true,
               },
             },
           },
@@ -81,7 +83,38 @@ export async function GET(request: NextRequest, { params }: Params) {
       );
     }
 
-    return NextResponse.json({ application });
+    // Get user's latest resume
+    const latestResume = await prisma.resume.findFirst({
+      where: {
+        userId: application.userId,
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        summary: true,
+        skills: true,
+        experience: true,
+        education: true,
+        projects: true,
+        languages: true,
+        certifications: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    // Add resume data to application response
+    const applicationWithResume = {
+      ...application,
+      resume: latestResume,
+    };
+
+    return NextResponse.json({ application: applicationWithResume });
   } catch (error) {
     console.error("Error fetching application:", error);
     return NextResponse.json(

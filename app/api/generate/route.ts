@@ -5,10 +5,39 @@ import { coverLetterPrompt } from "@/lib/prompts";
 export async function POST(req: Request) {
   try {
     const data = await req.json();
+    
+    // Validate required fields
+    if (!data.company || !data.position) {
+      return NextResponse.json(
+        { error: "Company and position are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!data.resumeData) {
+      return NextResponse.json(
+        { error: "Resume data is required" },
+        { status: 400 }
+      );
+    }
+
     const prompt = coverLetterPrompt(data);
     const letter = await generateCoverLetter(prompt);
+    
+    // Check if the response is an error message
+    if (letter.startsWith("Error:")) {
+      return NextResponse.json(
+        { error: letter },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json({ letter });
   } catch (error) {
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    console.error("Generate API Error:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Something went wrong" },
+      { status: 500 }
+    );
   }
 }

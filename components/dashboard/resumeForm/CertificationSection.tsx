@@ -6,7 +6,7 @@ import { generateId } from "@/contexts/ResumeContext";
 import { CertificationItem } from "@/types/resume.data.types";
 import Button from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
-import { Award, Plus } from "lucide-react";
+import { Award, Plus, UploadCloud, FileText } from "lucide-react";
 
 export default function CertificationSection() {
   const { resumeData, setResumeData } = useResume();
@@ -136,7 +136,10 @@ export default function CertificationSection() {
           <label className="block mb-1 text-gray-500 text-xs">
             Credential ID
           </label>
-            onChange={(e) => setCertification({ ...certification, issueDate: e.target.value })}
+          <input
+            value={certification.credentialId}
+            onChange={(e) => setCertification({ ...certification, credentialId: e.target.value })}
+            placeholder="Optional"
             className={inputClasses}
           />
         </div>
