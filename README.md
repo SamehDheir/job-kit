@@ -12,8 +12,12 @@ A modern full-stack job matching platform built with **Next.js 16**, **Prisma 5*
 - [Installation & Database Setup](#installation--database-setup)
 - [Development](#development)
 - [Database Management](#database-management)
+- [Database Schema](#database-schema)
+- [Contexts & Hooks](#contexts--hooks)
 - [API Endpoints](#api-endpoints)
+- [Components Documentation](#components-documentation)
 - [Authentication](#authentication)
+- [Key Features Implementation](#key-features-implementation)
 - [Deployment](#deployment)
 - [Troubleshooting](#troubleshooting)
 
